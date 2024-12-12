@@ -4,10 +4,9 @@
     <wd-form ref="form" :model="model" v-else="hasLogin">
       <wd-card custom-class="st-sha">
         <wd-cell-group border>
-          <wd-input label="用户名" label-width="100px" prop="value1" clearable v-model="model.value1" placeholder="请输入用户名"
-            :rules="[{ required: true, message: '请填写用户名' }]" />
-          <wd-input label="密码" label-width="100px" prop="value2" show-password clearable v-model="model.value2"
-            placeholder="请输入密码" :rules="[{ required: true, message: '请填写密码' }]" />
+          <wd-input label="手机号" label-width="100px" prop="userName" clearable v-model="model.userName" placeholder="请输入手机号"
+            :rules="[{ required: true, message: '请填写手机号' }]" />
+          <wd-input label="密码" show-password label-width="100px" prop="password" v-model="model.password" disabled placeholder="请输入密码" :rules="[{ required: true, message: '请填写密码' }]" />
         </wd-cell-group>
       </wd-card>
       <view class="p-40px">
@@ -18,13 +17,14 @@
 </template>
 <script lang="ts" setup>
 import { ref, reactive } from 'vue';
+import { loginApi } from '@/api';
 
 const model = reactive<{
-  value1: string
-  value2: string
+  userName: string
+  password: string
 }>({
-  value1: '',
-  value2: ''
+  userName: '',
+  password: '123456'
 })
 const hasLogin = ref(true)
 const form = ref()
@@ -34,6 +34,7 @@ function handleSubmit() {
     .validate()
     .then(({ valid, errors }) => {
       if (valid) {
+        loginApi(model)
       }
     })
     .catch((error) => {
