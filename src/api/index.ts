@@ -1,5 +1,5 @@
 export function uploadFile(data: any) {
-  return uni.u.post("/system/file/uploadOne", {
+  return uni.u.post("system/file/uploadOne", {
     data,
     headers: {
       "Content-Type": "multipart/form-data",
@@ -10,7 +10,7 @@ export function uploadFile(data: any) {
 export function getInfo() {
   return new Promise((rv, rj) => {
     uni.u
-      .get("/getInfo")
+      .get("getInfo")
       .then((res) => {
         rv(res);
       })
@@ -22,7 +22,7 @@ export function getInfo() {
 export function loginApi(data) {
 
   return new Promise((rv, rj) => {
-    uni.u.post("/auth/saas/login", {
+    uni.u.post("auth/saas/login", {
       data
     })
   });

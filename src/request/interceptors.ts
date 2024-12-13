@@ -5,7 +5,7 @@ import service from "./index";
 import { TOKEN } from '@/utils/constants'
 
 let token: string = "";
-const dev = "http://47.100.214.251:8181/";
+const dev = "http://47.100.214.251:8181";
 
 export const host = process.env.NODE_ENV === "development" ? dev : baseUrl;
 
