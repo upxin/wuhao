@@ -23,6 +23,7 @@ import { loginApi } from '@/api';
 const model = reactive<{
   username: string
   password: string
+  tenantCode: string
 }>({
   username: '',
   tenantCode: 'enjoy',
@@ -36,7 +37,12 @@ function handleSubmit() {
     .validate()
     .then(({ valid, errors }) => {
       if (valid) {
-        loginApi(model)
+        loginApi(model).then((res)=>{
+          console.log(999)
+          uni.switchTab({
+            url: '/pages/index/index'
+          })
+        })
       }
     })
     .catch((error) => {

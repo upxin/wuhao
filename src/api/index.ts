@@ -20,9 +20,23 @@ export function getInfo() {
 
 
 export function loginApi(data) {
-
   return new Promise((rv, rj) => {
     uni.u.post("auth/saas/login", {
+      data
+    })
+      .then((res) => {
+        rv(res);
+      })
+      .catch(() => { });
+  });
+}
+
+
+
+export function test(data) {
+
+  return new Promise((rv, rj) => {
+    uni.u.post("http://47.100.214.251:9201/disabledUser/getById", {
       data
     })
   });
