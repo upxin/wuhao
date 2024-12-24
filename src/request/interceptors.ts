@@ -1,13 +1,10 @@
 // @ts-nocheck
 
-import { getStorage, baseUrl } from "@/utils";
+import { getStorage, host } from "@/utils";
 import service from "./index";
 import { TOKEN } from '@/utils/constants'
 
 let token: string = "";
-const dev = "http://47.100.214.251:8181";
-
-export const host = process.env.NODE_ENV === "development" ? dev : baseUrl;
 
 function initHttp() {
   service.create({
@@ -20,8 +17,9 @@ function initHttp() {
   //请求拦截
   // @ts-ignore
   service.interceptors.request.use(async (config) => {
-    const data = (await getStorage(TOKEN)) || {};
-    token = data;
+    if(!token) {
+      token = uni.getStorageSync(TOKEN)
+    }
 
     if (config.header?.isToken === false) return config;
     if (config.header) {
@@ -33,45 +31,24 @@ function initHttp() {
         token,
       };
     }
-
-    console.log(config, "header");
-
     return config;
   });
   //响应拦截
   service.interceptors.response.use((response) => {
     //TODO
-    console.log("interceptors response", response);
-
-    if (response.statusCode != 200) {
-      uni.showToast({
-        icon: "none",
-        title: response?.data?.msg || "服务异常",
-        duration: 4000,
-      });
+    if(response.data?.code === 401) {
+      uni.removeStorageSync(TOKEN)
+      uni.redirectTo({
+        url:'/pages/login/index'
+      })
       return Promise.reject(response);
     }
-
-    if ([401, 403].includes(response.data.code)) {
-      token = "";
-      uni.u.reLaunch("/pages/login/index").then(() => {
-        uni.showToast({
-          icon: "none",
-          title: response?.data?.msg || "服务异常",
-          duration: 4000,
-        });
-      });
-
-      return Promise.reject(response.data);
-    }
-
-    if (response.data.code !== 200) {
+    if(response.data?.code === 500) {
       uni.showToast({
-        icon: "none",
-        title: response?.data?.msg || "服务异常",
-        duration: 4000,
-      });
-      return Promise.reject(response.data);
+        title:response.data.msg,
+        icon:'error'
+      })
+      return Promise.reject(response);
     }
 
     return Promise.resolve(response.data);

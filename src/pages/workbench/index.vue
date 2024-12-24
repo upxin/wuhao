@@ -1,47 +1,181 @@
 <template>
-  <section class="py-40rpx">
-    <wd-card title="考勤打卡" custom-class="border border-solid border-primary">
-      通过小程序远程进行岗位考勤打卡
-      <template #footer>
-        <wd-button size="small" custom-class="mr-20rpx">上班打卡</wd-button>
-        <wd-button size="small" type="success">下班打卡</wd-button>
-      </template>
-    </wd-card>
-    <wd-card title="工作任务" custom-class="border border-solid border-primary">
-      任务发布和完成
-      <template #footer>
-        <wd-button size="small" custom-class="mr-20rpx" @tap="upload(1)">上传任务</wd-button>
-        <wd-button size="small" type="success" @tap="view(1)">查看任务</wd-button>
-      </template>
-    </wd-card>
-    <wd-card title="合同视频" custom-class="border border-solid border-primary">
-      入职人员签署劳动合同过程
-      <template #footer>
-        <wd-button size="small" custom-class="mr-20rpx" @tap="upload(2)">上传资料</wd-button>
-        <wd-button size="small" type="success" @tap="view(2)">查看资料</wd-button>
-      </template>
-    </wd-card>
-    <wd-card title="工资视频" custom-class="border border-solid border-primary">
-      入职人员工资确认
-      <template #footer>
-        <wd-button size="small" custom-class="mr-20rpx" @tap="upload(3)">上传资料</wd-button>
-        <wd-button size="small" type="success" @tap="view(3)">查看资料</wd-button>
-      </template>
-    </wd-card>
+  <section class="w-screen h-screen overflow-hidden">
+    <!-- 相机拍照 -->
+    <section class="flex" :style="comStyle">
+      <section class="w-screen h-screen overflow-auto py-40rpx">
+        <wd-card title="考勤打卡" custom-class="border border-solid border-primary">
+          通过小程序远程进行岗位考勤打卡
+          <template #footer>
+            <wd-button size="small" custom-class="mr-20rpx"   @tap="showCameraFunc">上班打卡</wd-button>
+            <wd-button size="small" custom-class="mr-20rpx"   @tap="showCameraFunc">下班打卡</wd-button>
+            <wd-button size="small" type="success" @tap="view('pointRecord')">查看记录</wd-button>
+
+          </template>
+        </wd-card>
+        <wd-card title="工作任务" custom-class="border border-solid border-primary">
+          任务发布和完成
+          <template #footer>
+            <wd-button size="small" custom-class="mr-20rpx" @tap="upload('task')">上传任务</wd-button>
+            <wd-button size="small" type="success" @tap="view('task')">查看任务</wd-button>
+          </template>
+        </wd-card>
+        <wd-card title="合同视频" custom-class="border border-solid border-primary">
+          入职人员签署劳动合同过程
+          <template #footer>
+            <wd-button size="small" custom-class="mr-20rpx" @tap="upload('contract')">上传合同</wd-button>
+            <wd-button size="small" type="success" @tap="view('contract')">查看合同</wd-button>
+          </template>
+        </wd-card>
+        <wd-card title="工资视频" custom-class="border border-solid border-primary">
+          入职人员工资确认
+          <template #footer>
+            <wd-button size="small" custom-class="mr-20rpx" @tap="upload('pay')">上传薪酬</wd-button>
+            <wd-button size="small" type="success" @tap="view('pay')">查看薪酬</wd-button>
+          </template>
+        </wd-card>
+      </section>
+
+      <div class="w-screen h-screen relative">
+        <camera class="w-screen h-screen absolute z-999 left-0 top-0" device-position="front" flash="off"
+          binderror="error">
+        </camera>
+        <div class="absolute w-screen bottom-60rpx flex justify-around z-1000">
+          <wd-button size="large" custom-class="mr-20rpx" @tap="takePhoto">拍照</wd-button>
+          <wd-button size="large" type="success" @tap="hideCamera">取消</wd-button>
+        </div>
+      </div>
+    </section>
   </section>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
-const title = ref('Hello')
+import { ref, reactive, computed } from 'vue'
+import { uploadFile } from '@/api/index'
+import { host, TOKEN } from "@/utils";
+import { onLoad } from '@dcloudio/uni-app'
+
+let id = ''
+let addr = ''
+let token = ''
+let phonenumber = ''
+const showCamera = ref(false)
+const transform = ref('translateX(0%)')
+
+const showCameraFunc = () => {
+  showCamera.value = true;
+  transform.value = 'translateX(-100vw)';
+};
+
+const hideCamera = () => {
+  transform.value = 'translateX(0)';
+  setTimeout(() => {
+    showCamera.value = false;
+  }, 500);
+};
+
+const comStyle = computed(() => {
+  return {
+    transition: 'transform 0.5s ease-out',
+    width: '200vw',
+    transform: transform.value
+  }
+})
+
+onLoad(() => {
+  uni.getStorage({
+    key: 'loginName',
+    success(res) {
+      uni.u.get('/system/disabledUser/selectPage', {
+        data: {
+          phonenumber: res.data,
+          pageNum: 1,
+          pageSize: 1
+        }
+      }).then((res) => {
+        id = res.rows[0]?.id
+        addr = res.rows[0]?.pointAddress
+        phonenumber =  res.rows[0]?.phonenumber
+      })
+    }
+  })
+  uni.getStorage({
+    key: 'TOKEN', 
+    success(res) {
+      token = res.data
+    }
+  })
+})
+
 function upload(type) {
-  wx.chooseMedia({
-    sizeType: ['original', 'compressed'], // 可以指定是原图还是压缩图，默认二者都有
-    mediaType: ['mix'],
-    sourceType: ['album'], // 可以指定来源是相册还是相机，默认二者都有 //'camera'
-    success: function (res) {
-      // 返回选定照片的本地文件路径列表，tempFilePath可以作为img标签的src属性显示图片
+  uni.showLoading({
+    title:'上传中...', mask: true, icon: 'none'
+  })
+  uploadFile({
+    bizId: id,
+    bizType: type,
+  },token)
+}
+
+function takePhoto() {
+  const ctx = wx.createCameraContext()
+  ctx.takePhoto({
+    quality: 'low',
+    success: (r1) => {
+      const filePath = r1.tempImagePath
+
+      wx.getRandomValues({
+        length: 8,
+        success: r2 => {
+          uni.showLoading({
+            title:'上传中...', mask: true, icon: 'none'
+          })
+          wx.uploadFile({
+            url: host + '/file/file/upload',
+            filePath,
+            name: 'file',
+            formData: {
+              bizId: wx.arrayBufferToBase64(r2.randomValues),
+              bizType: 'pointRecord'
+            },
+            header: {
+              'Authorization': token
+            },
+            success: function (r3) {
+              var data = r3.data;
+              uni.hideLoading()
+              uni.u.post('/system/pointRecord/disabledUserPoint', { data: { pointAddressReal: addr ,id: wx.arrayBufferToBase64(r2.randomValues)} }).then(r4 => {
+                if (r4.code == 200) {
+                  uni.showToast({
+                    icon: 'none',
+                    title: "打卡成功"
+                  })
+                  hideCamera()
+                }
+              })
+            },
+            fail: function () {
+              // 上传失败，处理上传错误
+            }
+          });
+        }
+      })
     }
   })
 }
+
+function view(type) {
+  uni.navigateTo({
+    url: `/pages/history/index?bizId=${id}&bizType=${type}&phonenumber=${phonenumber}`
+  })
+}
 </script>
+
+<style>
+.slide-in {
+  transform: translateX(0);
+}
+
+.slide-out {
+  transform: translateX(100%);
+}
+</style>

@@ -1,7 +1,11 @@
 <template>
-  <section class="h-screen w-screen flex flex-col justify-center p-30rpx box-border items-center relative">
-    <wd-loading size="50px" v-if="!hasLogin" />
-    <wd-form ref="form" :model="model" v-else="hasLogin">
+  <section
+    class="h-screen w-screen flex flex-col justify-center p-30rpx box-border items-center relative bg-cover bg-no-repeat"
+    style="background-image: linear-gradient(to top, #cfd9df 0%, #e2ebf0 100%);">
+
+    <wd-loading size="50px" v-if="loading" />
+    <div v-if="!loading" class="text-center title">大美</div>
+    <wd-form ref="form" :model="model" v-if="!loading">
       <wd-card custom-class="st-sha">
         <wd-cell-group border>
           <wd-input label="手机号" label-width="120rpx" prop="username" clearable v-model="model.username"
@@ -17,8 +21,11 @@
   </section>
 </template>
 <script lang="ts" setup>
-import { ref, reactive } from 'vue';
-import { loginApi } from '@/api';
+import { ref, reactive, onBeforeMount } from 'vue';
+import { loginApi, getInfo } from '@/api';
+import { TOKEN } from '@/utils/constants'
+import { onLoad } from '@dcloudio/uni-app';
+import Bg from '@/static/bg.png'
 
 const model = reactive<{
   username: string
@@ -29,26 +36,49 @@ const model = reactive<{
   tenantCode: 'enjoy',
   password: '123456'
 })
-const hasLogin = ref(true)
+const loading = ref(true)
 const form = ref()
 
 function handleSubmit() {
-  form.value
-    .validate()
-    .then(({ valid, errors }) => {
-      if (valid) {
-        loginApi(model).then((res)=>{
-          console.log(999)
-          uni.switchTab({
-            url: '/pages/index/index'
+  form.value.validate().then(({ valid, errors }) => {
+    if (valid) {
+      loginApi(model).then((res) => {
+        if (res.code === 200) {
+          uni.setStorage({
+            key: TOKEN,
+            data: res.data.access_token,
+            success() {
+              init()
+            }
           })
-        })
-      }
-    })
+        }
+
+      })
+    }
+  })
     .catch((error) => {
       console.log(error, 'error')
     })
 }
+
+function init() {
+  getInfo()
+  uni.switchTab({
+    url: '/pages/index/index'
+  })
+}
+
+onLoad(() => {
+  uni.getStorage({
+    key: TOKEN,
+    success() {
+      init()
+    },
+    fail() {
+      loading.value = false
+    }
+  })
+})
 </script>
 <style>
 .login {
@@ -63,5 +93,17 @@ function handleSubmit() {
 
 .st-sha {
   box-shadow: 0px 0px 5px #ddd !important;
+}
+
+.title {
+  font-size: 30px;
+  color:#fefefe;
+  text-shadow:0px 1px 0px #c0c0c0,
+	 0px 2px 0px #b0b0b0,
+	 0px 3px 0px #a0a0a0,
+	 0px 4px 0px #909090,
+	 0px 5px 10px rgba(0, 0, 0, .9);
+   padding: 40rpx;
+   letter-spacing: 20px;
 }
 </style>

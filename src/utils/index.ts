@@ -18,7 +18,7 @@ export function getStorage(key: string) {
     uni.getStorage({
       key,
       success: function (res) {
-        rv(JSON.parse(res.data));
+        rv(res)
       },
       fail() {
         rv(null);

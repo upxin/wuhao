@@ -2,7 +2,7 @@
 	"easycom": {
 		"autoscan": true,
 		"custom": {
-		  "^wd-(.*)": "wot-design-uni/components/wd-$1/wd-$1.vue"
+			"^wd-(.*)": "wot-design-uni/components/wd-$1/wd-$1.vue"
 		}
 	},
 	"pages": [
@@ -33,7 +33,8 @@
 		{
 			"path": "pages/history/index",
 			"style": {
-				"navigationBarTitleText": "上传记录"
+				"navigationBarTitleText": "",
+				"enablePullDownRefresh": true
 			}
 		}
 	],
@@ -44,29 +45,29 @@
 		"backgroundColor": "#F8F8F8"
 	},
 	"tabBar": {
-    "color": "#aaa",
-    "fontSize": "30px",
-    "selectedColor": "#fe9739",
-    "backgroundColor": "#FFFFFF",
-    "list": [
-      {
-        "pagePath": "pages/index/index",
-        "iconPath": "static/h_off.png",
-        "selectedIconPath": "static/h_on.png",
-        "text": "首页"
-      },
-      {
-        "pagePath": "pages/workbench/index",
-        "iconPath": "static/w_off.png",
-        "selectedIconPath": "static/w_on.png",
-        "text": "工作台"
-      },
-      {
-        "pagePath": "pages/my/index",
-        "iconPath": "static/m_off.png",
-        "selectedIconPath": "static/m_on.png",
-        "text": "我的"
-      }
-    ]
-  }
+		"color": "#aaa",
+		"fontSize": "30px",
+		"selectedColor": "#fe9739",
+		"backgroundColor": "#FFFFFF",
+		"list": [
+			{
+				"pagePath": "pages/index/index",
+				"iconPath": "static/h_off.png",
+				"selectedIconPath": "static/h_on.png",
+				"text": "首页"
+			},
+			{
+				"pagePath": "pages/workbench/index",
+				"iconPath": "static/w_off.png",
+				"selectedIconPath": "static/w_on.png",
+				"text": "工作台"
+			},
+			{
+				"pagePath": "pages/my/index",
+				"iconPath": "static/m_off.png",
+				"selectedIconPath": "static/m_on.png",
+				"text": "我的"
+			}
+		]
+	}
 }
