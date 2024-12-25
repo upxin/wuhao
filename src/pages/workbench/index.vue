@@ -122,11 +122,8 @@ function takePhoto() {
     quality: 'low',
     success: (r1) => {
       const filePath = r1.tempImagePath
-
-      wx.getRandomValues({
-        length: 8,
-        success: r2 => {
-          uni.showLoading({
+      const id = (''+ Math.random()).split('.')[1] + (''+ Math.random()*100).split('.')[0]
+      uni.showLoading({
             title:'上传中...', mask: true, icon: 'none'
           })
           wx.uploadFile({
@@ -134,7 +131,7 @@ function takePhoto() {
             filePath,
             name: 'file',
             formData: {
-              bizId: wx.arrayBufferToBase64(r2.randomValues),
+              bizId:id,
               bizType: 'pointRecord'
             },
             header: {
@@ -143,7 +140,7 @@ function takePhoto() {
             success: function (r3) {
               var data = r3.data;
               uni.hideLoading()
-              uni.u.post('/system/pointRecord/disabledUserPoint', { data: { pointAddressReal: addr ,id: wx.arrayBufferToBase64(r2.randomValues)} }).then(r4 => {
+              uni.u.post('/system/pointRecord/disabledUserPoint', { data: { pointAddressReal: addr, id} }).then(r4 => {
                 if (r4.code == 200) {
                   uni.showToast({
                     icon: 'none',
@@ -157,8 +154,6 @@ function takePhoto() {
               // 上传失败，处理上传错误
             }
           });
-        }
-      })
     }
   })
 }

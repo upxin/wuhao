@@ -1,7 +1,9 @@
 <template>
   <div class="pt-40rpx"></div>
   <wd-card :title="item.createTime" v-for="item in list" :key="item.id" v-if="list?.length">
-    <wd-button  type="text" size="large" @tap="handleItem(item)">查看文件</wd-button>
+    <wd-img :width="100" :height="100" :src="item.url" :enable-preview="true" v-if="getFileType(item.url) === 'image'"/>
+    <wd-button @click="handleItem(item)"  v-else>视频文件请点击查看</wd-button>
+    <!-- <wd-button  type="text" size="large" @tap="handleItem(item)">查看文件</wd-button> -->
   </wd-card>
   <div v-else class="text-[#bbb] text-20px text-center">暂无数据</div>
 </template>

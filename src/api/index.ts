@@ -134,7 +134,6 @@ export function getByBiz(data) {
 }
 
 export function test(data) {
-
   return new Promise((rv, rj) => {
     uni.u.post("http://47.100.214.251:9201/disabledUser/getById", {
       data
