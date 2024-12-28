@@ -18,7 +18,7 @@ const base = {
 			//有效值必须大写
 			method: 'POST',
 			//大于0时才生效，否则使用全局配置或者默认值
-			timeout: 0,
+			timeout: 60000,
 			dataType: 'json',
 			//String，不同接口请求名称不可相同，否则会拦截重复key的请求，不传默认不拦截
 			requestTaskKey: '',

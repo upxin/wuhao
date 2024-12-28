@@ -6,8 +6,8 @@
         <wd-card title="考勤打卡" custom-class="border border-solid border-primary">
           通过小程序远程进行岗位考勤打卡
           <template #footer>
-            <wd-button size="small" custom-class="mr-20rpx"   @tap="showCameraFunc">上班打卡</wd-button>
-            <wd-button size="small" custom-class="mr-20rpx"   @tap="showCameraFunc">下班打卡</wd-button>
+            <wd-button size="small" custom-class="mr-20rpx" @tap="showCameraFunc">上班打卡</wd-button>
+            <wd-button size="small" custom-class="mr-20rpx" @tap="showCameraFunc">下班打卡</wd-button>
             <wd-button size="small" type="success" @tap="view('pointRecord')">查看记录</wd-button>
 
           </template>
@@ -36,9 +36,7 @@
       </section>
 
       <div class="w-screen h-screen relative">
-        <camera class="w-screen h-screen absolute z-999 left-0 top-0" device-position="front" flash="off"
-          binderror="error">
-        </camera>
+        <camera class="w-screen h-screen absolute z-999 left-0 top-0" device-position="front" flash="off"></camera>
         <div class="absolute w-screen bottom-60rpx flex justify-around z-1000">
           <wd-button size="large" custom-class="mr-20rpx" @tap="takePhoto">拍照</wd-button>
           <wd-button size="large" type="success" @tap="hideCamera">取消</wd-button>
@@ -53,6 +51,7 @@ import { ref, reactive, computed } from 'vue'
 import { uploadFile } from '@/api/index'
 import { host, TOKEN } from "@/utils";
 import { onLoad } from '@dcloudio/uni-app'
+import { AMapWX } from '../../amap-wx.130'
 
 let id = ''
 let addr = ''
@@ -94,67 +93,91 @@ onLoad(() => {
       }).then((res) => {
         id = res.rows[0]?.id
         addr = res.rows[0]?.pointAddress
-        phonenumber =  res.rows[0]?.phonenumber
+        phonenumber = res.rows[0]?.phonenumber
       })
     }
   })
   uni.getStorage({
-    key: 'TOKEN', 
+    key: 'TOKEN',
     success(res) {
       token = res.data
     }
   })
 })
-
+let myAmapFun
+onLoad(() => {
+  myAmapFun = new AMapWX({
+    key: '12eb12da01685bd7f18c119afc730035'
+  });
+})
 function upload(type) {
   uni.showLoading({
-    title:'上传中...', mask: true, icon: 'none'
+    title: '上传中...', mask: true, icon: 'none'
   })
   uploadFile({
     bizId: id,
     bizType: type,
-  },token)
+  }, token)
 }
+// 12eb12da01685bd7f18c119afc730035
+async function takePhoto() {
+  const ctx = uni.createCameraContext()
+  const getAddr = (location) => {
+    return new Promise((rv, rj) => {
+      myAmapFun.getRegeo({
+        location, // 经度, 纬度
+        success(data) {
+          rv(data)
+        },
+        fail(err) {
+          console.error('逆地理编码失败:', err);
+        }
+      });
+    })
+  }
 
-function takePhoto() {
-  const ctx = wx.createCameraContext()
+  const res = await uni.getLocation({
+    type: 'wgs84',
+  })
+  const { latitude, longitude } = res
+  const addr = await getAddr(`${longitude},${latitude}`)
+  const pointAddressReal = addr[0].regeocodeData.formatted_address
+
+  uni.showLoading({
+    title: '打卡中...',
+    mask: true,
+    icon: 'none'
+  })
   ctx.takePhoto({
     quality: 'low',
     success: (r1) => {
       const filePath = r1.tempImagePath
-      const id = (''+ Math.random()).split('.')[1] + (''+ Math.random()*100).split('.')[0]
-      uni.showLoading({
-            title:'上传中...', mask: true, icon: 'none'
-          })
-          wx.uploadFile({
-            url: host + '/file/file/upload',
-            filePath,
-            name: 'file',
-            formData: {
-              bizId:id,
-              bizType: 'pointRecord'
-            },
-            header: {
-              'Authorization': token
-            },
-            success: function (r3) {
-              var data = r3.data;
+      const id = ('' + Math.random()).split('.')[1] + ('' + Math.random() * 100).split('.')[0]
+      uni.uploadFile({
+        url: host + '/file/file/upload',
+        filePath,
+        name: 'file',
+        formData: {
+          bizId: id,
+          bizType: 'pointRecord'
+        },
+        header: {
+          'Authorization': token
+        },
+        success: function () {
+          uni.u.post('/system/pointRecord/disabledUserPoint', { data: { pointAddressReal, id } }).then(r4 => {
+            if (r4.code == 200) {
               uni.hideLoading()
-              uni.u.post('/system/pointRecord/disabledUserPoint', { data: { pointAddressReal: addr, id} }).then(r4 => {
-                if (r4.code == 200) {
-                  uni.showToast({
-                    icon: 'none',
-                    title: "打卡成功"
-                  })
-                  hideCamera()
-                }
+              uni.showToast({
+                icon: 'none',
+                title: "打卡成功"
               })
-            },
-            fail: function () {
-              // 上传失败，处理上传错误
+              hideCamera()
             }
-          });
-    }
+          })
+        },
+      });
+    },
   })
 }
 

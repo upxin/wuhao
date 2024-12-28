@@ -1,6 +1,7 @@
 <template>
   <div class="pt-40rpx"></div>
   <wd-card :title="item.createTime" v-for="item in list" :key="item.id" v-if="list?.length">
+    <div class="pb-20px">{{ item.pointAddressReal }}</div>
     <wd-img :width="100" :height="100" :src="item.url" :enable-preview="true" v-if="getFileType(item.url) === 'image'"/>
     <wd-button @click="handleItem(item)"  v-else>视频文件请点击查看</wd-button>
     <!-- <wd-button  type="text" size="large" @tap="handleItem(item)">查看文件</wd-button> -->

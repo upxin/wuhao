@@ -50,7 +50,7 @@ function up() {
 
 function init() {
   getByBiz({
-    pageSize: 30,
+    pageSize: 6,
     pageNum: 1,
     bizType: 'banner',
     bizId: 'banner'
