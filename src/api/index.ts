@@ -85,10 +85,10 @@ export function uploadAvatar1({token, id, filePath}, cb) {
   });
 }
 
-export function getInfo() {
+export function getInfo(token) {
   return new Promise((rv, rj) => {
     uni.u
-      .get("system/saas/user/getInfo")
+      .get("system/saas/user/getInfo", { data : { token }})
       .then((res) => {
         uni.setStorage({
           key: 'name',

@@ -14,19 +14,37 @@
             placeholder="请输入密码" :rules="[{ required: true, message: '请填写密码' }]" />
         </wd-cell-group>
       </wd-card>
+
+      <div class="flex justify-center items-center">
+        <wd-checkbox v-model="agree" shape="square">已经阅读并同意</wd-checkbox>
+        <div class="text-blue text-14px" @click="show = true">《用户隐私协议》</div>
+      </div>
+      
       <view class="p-40px">
         <wd-button type="primary" size="large" @click="handleSubmit" block>提交</wd-button>
       </view>
     </wd-form>
   </section>
+
+  <wd-overlay :show="show">
+    <view class="px-40px py-100px h-full box-border overflow-hidden">
+      <view class="bg-fff overflow-y-auto p-30rpx rounded-md h-full box-border"> 
+        <view v-for="item in privacy" :key="item" class="my-10px">{{ item }}</view>
+      </view>
+      <view class="flex justify-center pt-20px">
+        <wd-button  @click="show = false">已知悉</wd-button>
+      </view>
+    </view>
+  </wd-overlay>
 </template>
 <script lang="ts" setup>
 import { ref, reactive, onBeforeMount } from 'vue';
 import { loginApi, getInfo } from '@/api';
 import { TOKEN } from '@/utils/constants'
 import { onLoad } from '@dcloudio/uni-app';
-import Bg from '@/static/bg.png'
-
+import { privacy } from './privacy';
+const show = ref(false)
+const agree = ref(false)
 const model = reactive<{
   username: string
   password: string
@@ -40,6 +58,15 @@ const loading = ref(true)
 const form = ref()
 
 function handleSubmit() {
+  if(!agree.value) {
+    uni.showToast({
+      title: '请阅读隐私协议',
+      icon: 'error',
+      duration: 2500,
+      mask: true
+    })
+    return
+  }
   form.value.validate().then(({ valid, errors }) => {
     if (valid) {
       loginApi(model).then((res) => {
@@ -48,6 +75,7 @@ function handleSubmit() {
             key: TOKEN,
             data: res.data.access_token,
             success() {
+              getInfo(res.data.access_token)
               init()
             }
           })
@@ -62,7 +90,6 @@ function handleSubmit() {
 }
 
 function init() {
-  getInfo()
   uni.switchTab({
     url: '/pages/index/index'
   })
@@ -97,13 +124,13 @@ onLoad(() => {
 
 .title {
   font-size: 30px;
-  color:#fefefe;
-  text-shadow:0px 1px 0px #c0c0c0,
-	 0px 2px 0px #b0b0b0,
-	 0px 3px 0px #a0a0a0,
-	 0px 4px 0px #909090,
-	 0px 5px 10px rgba(0, 0, 0, .9);
-   padding: 40rpx;
-   letter-spacing: 20px;
+  color: #fefefe;
+  text-shadow: 0px 1px 0px #c0c0c0,
+    0px 2px 0px #b0b0b0,
+    0px 3px 0px #a0a0a0,
+    0px 4px 0px #909090,
+    0px 5px 10px rgba(0, 0, 0, .9);
+  padding: 40rpx;
+  letter-spacing: 20px;
 }
 </style>

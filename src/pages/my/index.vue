@@ -60,29 +60,19 @@ onLoad(() => {
         }
       }).then((res) => {
         model.value = res.rows?.[0]
-      })
-    }
-  })
-
-  uni.getStorage({
-    key: 'loginName',
-    success(res) {
-      uni.u.get('/system/disabledUser/selectPage', {
-        data: {
-          phonenumber: res.data,
-          pageNum: 1,
-          pageSize: 1
-        }
-      }).then((res) => {
-        model.value = res.rows?.[0]
         id = res.rows[0]?.id
       })
-    }
+    },
   })
   uni.getStorage({
     key: 'TOKEN', 
     success(res) {
       token = res.data
+    },
+    fail(){
+      uni.redirectTo({
+        url:'/pages/login/index'
+      })
     }
   })
 

@@ -17,7 +17,10 @@ function initHttp() {
   //请求拦截
   // @ts-ignore
   service.interceptors.request.use(async (config) => {
-    if(!token) {
+    console.log(config)
+    if(config.data.token) {
+      token = config.data.token
+    } else if (!token) {
       token = uni.getStorageSync(TOKEN)
     }
 

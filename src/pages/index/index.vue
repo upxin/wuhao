@@ -31,22 +31,11 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { host, TOKEN } from '@/utils/index'
 import { onLoad } from '@dcloudio/uni-app';
-import { getByBiz, getInfo, uploadFile } from '@/api';
+import { getByBiz, uploadFile } from '@/api';
 
 const current = ref<number>(2)
-
 const swiperList = ref([])
-
-function up() {
-  const token = uni.getStorageSync(TOKEN)
-  console.log(token)
-  uploadFile({
-    bizId: 'banner',
-    bizType: 'banner',
-  }, token)
-}
 
 function init() {
   getByBiz({

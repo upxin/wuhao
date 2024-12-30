@@ -6,7 +6,7 @@
     <wd-button @click="handleItem(item)"  v-else>视频文件请点击查看</wd-button>
     <!-- <wd-button  type="text" size="large" @tap="handleItem(item)">查看文件</wd-button> -->
   </wd-card>
-  <div v-else class="text-[#bbb] text-20px text-center">暂无数据</div>
+  <div v-else class="text-[#bbb] text-20px text-center"><wd-status-tip image="content" tip="暂无内容" /></div>
 </template>
 
 <script lang="ts" setup>
