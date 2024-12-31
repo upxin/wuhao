@@ -51,7 +51,7 @@ function listRecord() {
     bizId
   }).then(res => {
     uni.stopPullDownRefresh()
-    list.value = [...list.value, ...res.data]
+    list.value = [...list.value, ...res.rows]
     total = res.total
   })
 }

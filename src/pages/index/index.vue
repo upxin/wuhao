@@ -31,13 +31,13 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { onLoad } from '@dcloudio/uni-app';
-import { getByBiz, uploadFile } from '@/api';
+import { getBanner, uploadFile } from '@/api';
 
 const current = ref<number>(2)
 const swiperList = ref([])
 
 function init() {
-  getByBiz({
+  getBanner({
     pageSize: 6,
     pageNum: 1,
     bizType: 'banner',

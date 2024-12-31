@@ -125,6 +125,16 @@ export function loginApi(data) {
 export function getByBiz(data) {
   return new Promise((rv, rj) => {
     uni.u
+      .get("/file/file/getByBizPage", { data })
+      .then((res) => {
+        rv(res);
+      })
+      .catch(() => { });
+  });
+}
+export function getBanner(data) {
+  return new Promise((rv, rj) => {
+    uni.u
       .get("/file/file/getByBiz", { data })
       .then((res) => {
         rv(res);
