@@ -91,8 +91,12 @@ function logout(){
   }})
 }
 function init() {
-  getInfo().then((res) => {
+  getInfo(token).then((res) => {
     if( res?.user?.avatar){
+      uni.hideLoading()
+      uni.showToast({
+        title:'上传成功', icon:'success'
+      })
       joy.value = res.user.avatar
       uni.setStorage({
         key:'avatarfile',
@@ -101,6 +105,7 @@ function init() {
     }
    
   }).catch(() => {
+    uni.hideLoading()
   })
 }
 
@@ -120,6 +125,9 @@ function upload() {
 }
 function handleConfirm(event) {
   const { tempFilePath } = event
+  uni.showLoading({
+    title:'正在上传...'
+  })
   uploadAvatar1({token, id, filePath: tempFilePath},init)
 }
 function handleCancel(event) {

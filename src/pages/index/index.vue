@@ -3,10 +3,9 @@
     <wd-swiper :list="swiperList" :autoplay="false" v-model:current="current"
       custom-indicator-class="custom-indicator-class" custom-image-class="custom-image"
       custom-next-image-class="custom-image-prev" custom-prev-image-class="custom-image-prev"
-      :indicator="{ type: 'dots-bar' }" previousMargin="24px" nextMargin="24px">
+      :indicator="{ type: 'dots-bar' }">
     </wd-swiper>
   </view>
-  <!-- <wd-button @click="up">上传</wd-button> -->
 
   <view class="py40rpx">
     <wd-card title="公司简介">
