@@ -16,6 +16,9 @@ import { getByBiz, pointRecord } from '@/api/index'
 const list = ref([])
 let pageNum = 1
 let query;
+let total = 0
+let pageSize = 5
+
 onLoad((opts) => {
   query = opts
   listRecord()
@@ -24,20 +27,22 @@ onLoad((opts) => {
 function listRecord() {
   const { bizType, bizId, phonenumber } = query
   if (bizType === 'pointRecord') {
-    pointRecord({ phonenumber, pageSize: 30, pageNum }).then(res => {
+    pointRecord({ userId:bizId, pageSize, pageNum }).then(res => {
       uni.stopPullDownRefresh()
       list.value = [...list.value, ...res.rows]
+      total = res.total
     })
     return
   }
   getByBiz({
-    pageSize: 30, 
+    pageSize, 
     pageNum,
     bizType,
     bizId
   }).then(res => {
     uni.stopPullDownRefresh()
     list.value = [...list.value, ...res.data]
+    total = res.total
   })
 }
 const getFileType = (url) => {
@@ -56,33 +61,16 @@ const getFileType = (url) => {
 }
 function handleItem(item){
   const type = getFileType(item.url) 
-  if(query.bizType === 'pointRecord') {
-    // 拉接口
-    uni.showLoading({
-      title:'图片加载中...', mask:true
-    })
-    getByBiz({
-      pageSize: 30, 
-      pageNum:1,
-      bizType: 'pointRecord',
-      bizId:item.id
-    }).then(res => {
-      uni.hideLoading()
-      uni.previewMedia({
-        sources: res.data
-      })
-    })
-  } else {
-    uni.previewMedia({
-      sources:[{ url:item.url, type }]
-    })
-  }
+  uni.previewMedia({
+    sources:[{ url:item.url, type }]
+  })
 }
 onPullDownRefresh(()=>{
   pageNum = 1
   listRecord()
 })
 onReachBottom(()=>{
+  if(total <= pageNum* pageSize) return
   pageNum += 1
   listRecord()
 })
