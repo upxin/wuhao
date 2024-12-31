@@ -1,5 +1,5 @@
 <template>
-  <section class="w-screen h-screen overflow-auto py-40rpx">
+  <section class="py-40rpx">
     <wd-card title="考勤打卡" custom-class="border border-solid border-primary">
       通过小程序远程进行岗位考勤打卡
       <template #footer>

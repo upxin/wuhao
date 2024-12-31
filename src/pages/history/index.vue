@@ -1,19 +1,16 @@
 <template>
   <div class="py-80rpx">
-    <wd-card :title="item.createTime" v-for="item in list" :key="item.id" v-if="list?.length">
-      <div class="pb-20px">{{ item.pointAddressReal }}</div>
-      <div class="relative w-220px" v-if="bizType === 'pointRecord'">
-        <div v-if="bizType === 'pointRecord'"
-          class=" absolute left-10rpx bottom-24rpx text-red font-800 text-20rpx z-999 w-200px">{{ item.createTime }}
+    <wd-card :title="item.createTime" v-for="item in list" :key="item.id" v-if="list?.length" custom-class="my-shadow">
+      <div class="pb-20px" v-if="item.pointAddressReal">{{ item.pointAddressReal }}</div>
+      <div class="relative w-300px" v-if="bizType === 'pointRecord'">
+        <div class=" absolute left-10rpx bottom-24rpx text-red font-800  z-999 w-280px"> {{ item.pointTime }} </div>
+        <div class=" absolute left-10rpx bottom-70rpx text-red font-800  z-999 w-280px">
+          {{ item.pointAddressReal }}
         </div>
-        <div v-if="bizType === 'pointRecord'"
-          class=" absolute left-10rpx bottom-70rpx text-red font-800 text-20rpx z-999 w-200px">{{ item.pointAddressReal
-          }}</div>
-        <wd-img :width="300" :height="400" :src="item.url" :enable-preview="true" @click="handleItem(item)" />
+        <wd-img :width="300" :height="400" :src="item.url" />
       </div>
       <div v-else>
-        <wd-img v-if="getFileType(item.url) === 'image'" :width="300" :height="400" :src="item.url"
-          :enable-preview="true" />
+        <wd-img v-if="getFileType(item.url) === 'image'" :width="300" :height="400" :src="item.url" :enable-preview="false" />
         <wd-button v-else @click="handleItem(item)">视频文件请点击查看</wd-button>
       </div>
     </wd-card>
@@ -29,7 +26,7 @@ const list = ref([])
 let pageNum = 1
 let query;
 let total = 0
-let pageSize = 5
+let pageSize = 10
 const bizType = ref('')
 onLoad((opts) => {
   query = opts
@@ -93,5 +90,8 @@ onReachBottom(() => {
   top: 50%;
   left: 50%;
   transform: translate3d(-50%, -50%, 0);
+}
+.my-shadow {
+  box-shadow:0px 3px 8px #ddd !important;
 }
 </style>

@@ -19,7 +19,7 @@
             <wd-cell-group>
               <wd-input label="身份证号" label-width="140rpx" disabled v-model="model.idCard" placeholder="" />
               <wd-input label="残疾证号" label-width="140rpx" disabled v-model="model.disabledCard" placeholder="" />
-              <wd-input label="公司" label-width="140rpx" disabled v-model="model.company" placeholder="" />
+              <wd-input label="所属公司" label-width="140rpx" disabled v-model="model.company" placeholder="" />
               <wd-input label="入职时间" label-width="140rpx" disabled v-model="model.employmentDate" placeholder=""></wd-input>
             </wd-cell-group>
           </wd-form>
