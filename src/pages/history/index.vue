@@ -11,7 +11,9 @@
       </div>
       <div v-else>
         <wd-img v-if="getFileType(item.url) === 'image'" :width="300" :height="400" :src="item.url" :enable-preview="false" />
-        <wd-button v-else @click="handleItem(item)">视频文件请点击查看</wd-button>
+        <div  v-else class="w-300px h-300px bg-[#ddd] flex justify-center items-center" >
+          <wd-icon @click="handleItem(item)" name="video" size="140px"></wd-icon>
+        </div>
       </div>
     </wd-card>
     <div v-else class="text-[#bbb] text-20px text-center"><wd-status-tip image="content" tip="暂无内容" /></div>
