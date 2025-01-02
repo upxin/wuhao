@@ -1,6 +1,6 @@
 <template>
-  <div v-if="loading" class="w-screen h-screen flex justify-center items-center">
-    <wd-loading size="50px" color="#fe9739" />
+  <div v-if="loading" class="w-screen h-screen flex flex-col justify-center items-center">
+    <div class="i-line-md-loading-twotone-loop w-180rpx h-180rpx"></div>
   </div>
 
   <section v-if="!loading"
@@ -25,18 +25,19 @@
       </div>
 
       <view class="p-40px">
-        <wd-button custom-class="custom-shadow" type="primary" size="large" @click="handleSubmit" block>提交</wd-button>
+        <wd-button custom-class="custom-shadow" custom-style="font-weight:600" type="primary" size="large"
+          @click="handleSubmit" block>提交</wd-button>
       </view>
     </wd-form>
   </section>
 
   <wd-popup v-model="show" custom-style="background-color: unset;">
-    <view class="h-70vh w-80vw flex flex-col justify-center items-center p-24rpx">
-      <div class="flex-1 overflow-auto bg-fff rounded-md p-34rpx">
+    <view class="h-70vh w-80vw flex flex-col justify-center items-center p-34rpx">
+      <div class="flex-1 overflow-auto bg-fff rounded-lg p-34rpx">
         <view v-for="item in privacy" :key="item" class="mb-10px">{{ item }}</view>
       </div>
       <view class="flex justify-center py-20px">
-        <wd-button @click="show = false">已知悉</wd-button>
+        <wd-button custom-style="font-weight:600" @click="show = false" :size="'large'">已知悉</wd-button>
       </view>
     </view>
   </wd-popup>
@@ -61,7 +62,6 @@ const model = reactive<{
 })
 const loading = ref(true)
 const form = ref()
-
 function handleSubmit() {
   if (!agree.value) {
     uni.showToast({
@@ -112,7 +112,7 @@ onLoad(() => {
   })
 })
 </script>
-<style>
+<style lang="scss">
 .login {
   width: 670rpx;
   border-radius: 20rpx;
@@ -131,44 +131,11 @@ onLoad(() => {
   box-shadow: 0px 0px 5px #ddd !important;
 }
 
-.title {
-  font-size: 30px;
-  color: #fefefe;
-  text-shadow: 0px 1px 0px #c0c0c0,
-    0px 2px 0px #b0b0b0,
-    0px 3px 0px #a0a0a0,
-    0px 4px 0px #909090,
-    0px 5px 10px rgba(0, 0, 0, .9);
-  padding: 40rpx;
-  letter-spacing: 20px;
-
-}
-
 .text3d {
-  color: #70869d;
+  color: var(--wot-color-theme);
   letter-spacing: 20px;
   font-size: 40px;
   padding: 40rpx;
-  text-shadow:
-    -1px -1px 1px #efede3,
-    0px 1px 0 #2e2e2e,
-    0px 2px 0 #2c2c2c,
-    0px 3px 0 #2a2a2a,
-    0px 4px 0 #282828,
-    0px 5px 0 #262626,
-    0px 6px 0 #242424,
-    0px 7px 0 #222,
-    0px 8px 0 #202020,
-    0px 9px 0 #1e1e1e,
-    0px 10px 0 #1c1c1c,
-    0px 11px 0 #1a1a1a,
-    0px 12px 0 #181818,
-    0px 13px 0 #161616,
-    0px 14px 0 #141414,
-    0px 15px 0 #121212,
-    2px 20px 5px rgba(0, 0, 0, 0.9),
-    5px 23px 5px rgba(0, 0, 0, 0.3),
-    8px 27px 8px rgba(0, 0, 0, 0.5),
-    8px 28px 35px rgba(0, 0, 0, 0.9);
 }
+
 </style>

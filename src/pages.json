@@ -9,24 +9,27 @@
 		{
 			"path": "pages/login/index",
 			"style": {
-				"navigationStyle": "custom"
+				"navigationStyle": "custom",
 			}
 		},
 		{
 			"path": "pages/index/index",
 			"style": {
+				"navigationStyle": "custom",
 				"navigationBarTitleText": "首页"
 			}
 		},
 		{
 			"path": "pages/workbench/index",
 			"style": {
+				"navigationStyle": "custom",
 				"navigationBarTitleText": "工作台"
 			}
 		},
 		{
 			"path": "pages/my/index",
 			"style": {
+				"navigationStyle": "custom",
 				"navigationBarTitleText": "我的"
 			}
 		},
@@ -34,6 +37,7 @@
 			"path": "pages/history/index",
 			"style": {
 				"navigationBarTitleText": "",
+				"navigationStyle": "custom",
 				"enablePullDownRefresh": true
 			}
 		}
@@ -46,8 +50,9 @@
 	},
 	"tabBar": {
 		"color": "#aaa",
-		"fontSize": "30px",
+		"fontSize": "64rpx",
 		"selectedColor": "#fe9739",
+		"fontWeight": "800",
 		"backgroundColor": "#FFFFFF",
 		"list": [
 			{

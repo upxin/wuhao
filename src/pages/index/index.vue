@@ -1,42 +1,89 @@
 <template>
-  <view class="card-swiper py-40rpx">
-    <wd-swiper :list="swiperList" :autoplay="false" v-model:current="current"
-      custom-indicator-class="custom-indicator-class" custom-image-class="custom-image"
-      custom-next-image-class="custom-image-prev" custom-prev-image-class="custom-image-prev"
-      :indicator="{ type: 'dots-bar' }">
-    </wd-swiper>
-  </view>
+  <div v-if="loading" class="w-screen h-screen flex flex-col justify-center items-center fixed z-1000 top-0 left-0">
+    <div class="i-line-md-loading-twotone-loop w-180rpx h-180rpx"></div>
+  </div>
 
-  <view class="py40rpx">
-    <wd-card title="公司简介">
-      我们公司专注于为残疾人提供就业相关的服务，致力于帮助他们在职场中找到合适的岗位，实现职业梦想。作为一家专业的残疾人就业服务机构，我们的服务涵盖职业评估、技能培训、就业指导、岗位匹配和职场适应等多个方面。
-    </wd-card>
-    <wd-card title="专业团队">
-      我们的团队由资深的职业顾问、培训师和心理咨询师组成，确保每一位客户都能获得个性化的职业发展方案。我们通过科学的职业评估，了解每位残疾人的兴趣、能力和需求，制定量身定制的培训计划，提升他们的职业技能和竞争力。
-    </wd-card>
-    <wd-card title="企业合作">
-      我们与众多企业建立了紧密的合作关系，积极开拓适合残疾人的就业岗位，帮助他们顺利融入职场。通过我们的努力，我们不仅帮助残疾人找到工作，更希望他们在工作中获得成就感和自信心。
-    </wd-card>
-    <wd-card title="持续支持">
-      我们还提供持续的职场适应支持，确保他们在新的工作环境中能够顺利过渡和长期稳定发展。我们的使命是为残疾人创造更多的就业机会，推动社会的包容和多元化发展。
-    </wd-card>
+  <div v-show="!loading" class="card-swiper flex flex-col h-screen overflow-hidden relative ">
+    <wd-swiper :list="swiperList" :autoplay="true" v-model:current="current" height="240" :imageMode="'widthFix'"
+      :indicator="{ type: 'dots-bar' }"></wd-swiper>
 
-    <wd-card title="使命与愿景">
-      我们深信，每个人都有独特的价值和潜力。我们将继续努力，为残疾人提供全方位的就业支持，帮助他们实现职业梦想，过上独立、自信和充实的生活。
-    </wd-card>
-  </view>
+    <map class="flex-1 w-screen" :longitude="lon" :latitude="lat" :markers="markers" scale="16" controls>
+      <template slot="callout">
+        <cover-view marker-id="123" class="pop">
+          {{ addrDetail }}
+        </cover-view>
+      </template>
+    </map>
 
+    <div class=" absolute flex justify-around bottom-60rpx w-screen">
+      <wd-button :size="'large'" @click="showCameraFunc" custom-style="font-weight:600">打卡</wd-button>
+      <wd-button :size="'large'" @click="view('pointRecord', '考勤记录')" custom-style="font-weight:600"
+        :type="'success'">查看</wd-button>
+    </div>
+  </div>
+
+  <div v-show="!loading" class="w-screen h-screen fixed top-0 left-0" v-show="showCamera">
+    <camera class="w-screen h-screen absolute z-999 left-0 top-0" device-position="front" flash="off"></camera>
+    <div class="absolute w-screen bottom-60rpx flex justify-around z-1000">
+      <wd-button custom-style="font-weight:600" size="large" custom-class="mr-20rpx" @tap="takePhoto">拍照</wd-button>
+      <wd-button custom-style="font-weight:600" size="large" type="success" @tap="hideCamera">取消</wd-button>
+    </div>
+  </div>
 </template>
 
 <script setup lang="ts">
 import { ref } from 'vue'
 import { onLoad } from '@dcloudio/uni-app';
 import { getBanner, uploadFile } from '@/api';
+import { AMapWX } from '../../amap-wx.130'
+import LocationIcon from '@/static/icon/location.png'
+import { host, TOKEN } from "@/utils";
 
+const loading = ref(true)
 const current = ref<number>(2)
 const swiperList = ref([])
+const lon = ref(0)
+const lat = ref(0)
+const markers = ref([])
+const addrDetail = ref('')
+let myAmapFun
+let id = ''
+let token = ''
+let phonenumber = ''
+
+const showCamera = ref(false)
+
+const showCameraFunc = () => {
+  showCamera.value = true;
+};
+
+const hideCamera = () => {
+  showCamera.value = false;
+};
 
 function init() {
+  uni.getStorage({
+    key: 'loginName',
+    success(res) {
+      uni.u.get('/system/disabledUser/selectPage', {
+        data: {
+          phonenumber: res.data,
+          pageNum: 1,
+          pageSize: 1
+        }
+      }).then((res) => {
+        id = res.rows[0]?.id
+        phonenumber = res.rows[0]?.phonenumber
+      })
+    }
+  })
+  uni.getStorage({
+    key: 'TOKEN',
+    success(res) {
+      token = res.data
+    }
+  })
+
   getBanner({
     pageSize: 6,
     pageNum: 1,
@@ -47,32 +94,180 @@ function init() {
   })
 }
 
-onLoad(() => {
+const getAddr = (location) => {
+  return new Promise((rv, rj) => {
+    myAmapFun.getRegeo({
+      location, // 经度, 纬度
+      success(data) {
+        rv(data)
+      },
+      fail(err) {
+        uni.hideLoading()
+        console.error('逆地理编码失败:', err);
+      }
+    });
+  })
+}
+
+async function takePhoto() {
+
+  uni.showLoading({
+    title: '打卡中...',
+    mask: true,
+    icon: 'none'
+  })
+  try {
+    const res = await uni.getLocation({
+      type: 'wgs84',
+    })
+    const { latitude, longitude } = res
+
+    const addr = await getAddr(`${longitude},${latitude}`)
+    const pointAddressReal = addr[0].regeocodeData.formatted_address
+
+
+    const filePath = await getPhoto()
+    const uuid = ('' + Math.random()).split('.')[1] + ('' + Math.random() * 100).split('.')[0]
+    await getPhoto()
+    await uploadPhoto(filePath, uuid)
+    await point(pointAddressReal, uuid)
+    uni.hideLoading()
+
+  } catch (error) {
+    uni.hideLoading()
+    uni.showToast({
+      title: '打卡异常',
+      icon: 'fail'
+    })
+  }
+
+
+}
+
+function uploadPhoto(filePath, uuid) {
+  return new Promise((rv, rj) => {
+    uni.uploadFile({
+      url: host + '/file/file/upload',
+      filePath,
+      name: 'file',
+      formData: {
+        bizId: uuid,
+        bizType: 'pointRecord'
+      },
+      header: {
+        'Authorization': token
+      },
+      success() {
+        rv(true)
+      },
+    });
+  })
+}
+
+function point(pointAddressReal, uuid) {
+  return new Promise((rv, rj) => {
+    uni.u.post('/system/pointRecord/disabledUserPoint', { data: { pointAddressReal, id: uuid } }).then(r4 => {
+      if (r4.code == 200) {
+        rv(true)
+        uni.hideLoading()
+        uni.showToast({
+          icon: 'none',
+          title: "打卡成功"
+        })
+        hideCamera()
+      }
+    }).catch((err) => {
+      rj(err)
+    })
+  })
+
+}
+function getPhoto() {
+  const ctx = uni.createCameraContext()
+  return new Promise((rv, rj) => {
+    ctx.takePhoto({
+      quality: 'low',
+      success(res) {
+        const filePath = res.tempImagePath
+        rv(filePath)
+      },
+      fail(err) {
+        rj(err)
+      }
+    })
+  })
+}
+
+function view(type, title) {
+  uni.navigateTo({
+    url: `/pages/history/index?bizId=${id}&bizType=${type}&phonenumber=${phonenumber}&title=${title}`
+  })
+}
+
+
+
+onLoad(async () => {
   init()
+  try {
+    myAmapFun = new AMapWX({
+      key: '12eb12da01685bd7f18c119afc730035'
+    });
+    const res = await uni.getLocation({
+      type: 'wgs84'
+    })
+    const { latitude, longitude } = res
+    const addrInfo = await getAddr(`${longitude},${latitude}`)
+    addrDetail.value = addrInfo[0].regeocodeData.formatted_address
+    lon.value = longitude
+    lat.value = latitude
+    markers.value = [{
+      id: 123,
+      latitude,
+      longitude,
+      iconPath: LocationIcon,
+      width: 50,
+      height: 50,
+      customCallout: {
+        anchorY: 2,
+        anchorX: 0,
+        display: 'ALWAYS'
+      },
+    }]
+    loading.value = false
+  } catch (error) {
+    loading.value = false
+  }
 })
 </script>
+
 <style lang="scss">
 .card-swiper {
   --wot-swiper-radius: 0;
-  --wot-swiper-item-padding: 0 24rpx;
   --wot-swiper-nav-dot-color: #e7e7e7;
   --wot-swiper-nav-dot-active-color: #4d80f0;
-  padding-bottom: 24rpx;
 
   :deep(.custom-indicator-class) {
     bottom: -16px;
   }
 
+  :deep(.wd-swiper__track) {
+    border-radius: 0;
+  }
+
   :deep(.wd-swiper-nav__item--dots-bar.is-active) {
     border-radius: 14rpx;
   }
+}
 
-  :deep(.custom-image) {
-    border-radius: 12rpx;
-  }
-
-  :deep(.custom-image-prev) {
-    height: 168px !important;
-  }
+.pop {
+  background-color: #fff;
+  border-radius: 20rpx;
+  padding: 16rpx 12rpx;
+  width: 520rpx;
+  height: auto;
+  white-space: pre-wrap;
+  word-break: break-all;
+  text-align: center;
+  overflow: auto;
 }
 </style>

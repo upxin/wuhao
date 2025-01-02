@@ -1,21 +1,32 @@
 <template>
-  <div class="py-80rpx">
-    <wd-card :title="item.createTime" v-for="item in list" :key="item.id" v-if="list?.length" custom-class="my-shadow">
-      <div class="pb-20px" v-if="item.pointAddressReal">{{ item.pointAddressReal }}</div>
-      <div class="relative w-300px" v-if="bizType === 'pointRecord'">
-        <div class=" absolute left-10rpx bottom-24rpx text-red font-800  z-999 w-280px"> {{ item.pointTime }} </div>
-        <div class=" absolute left-10rpx bottom-70rpx text-red font-800  z-999 w-280px">
-          {{ item.pointAddressReal }}
+  <wd-navbar :title="title" safeAreaInsetTop fixed left-arrow  @click-left="handleClickLeft"></wd-navbar>
+  <wd-navbar :title="title" safeAreaInsetTop left-arrow  @click-left="handleClickLeft"></wd-navbar>
+  <div class="pb-40rpx w-full box-border">
+    <div v-for="item in list" :key="item.id" v-if="list?.length" class="bg-fff mb-24rpx p-24rpx w-full box-border">
+      <div class="mb-24rpx text-[#4D4D4D]" v-if="bizType !== 'pointRecord'">创建时间：<span class="text-[#bbb]">{{ item.createTime }}</span></div>
+
+      <div class="relative flex" v-if="bizType === 'pointRecord'">
+        <div class=" absolute center-left bottom-80rpx text-fff font-600  z-999  flex w-300px box-border px-12rpx">
+          <span class="i-material-symbols-location-on h-44rpx w-44rpx pt-4rpx"></span>
+          <span class="flex-1 ml-12rpx">{{ item.pointAddressReal }}</span>
         </div>
-        <wd-img :width="300" :height="400" :src="item.url" />
-      </div>
-      <div v-else>
-        <wd-img v-if="getFileType(item.url) === 'image'" :width="300" :height="400" :src="item.url" :enable-preview="false" />
-        <div  v-else class="w-300px h-300px bg-[#ddd] flex justify-center items-center" >
-          <wd-icon @click="handleItem(item)" name="video" size="140px"></wd-icon>
+        <div class=" absolute center-left bottom-24rpx text-fff font-600  z-999  flex items-center  w-300px box-border px-12rpx">
+          <span class="i-material-symbols-alarm-outline h-40rpx w-40rpx"></span>
+          <span class="ml-12rpx flex-1">{{ item.pointTime }}</span>
+        </div>
+        <div class="w-full flex justify-center">
+          <img :mode="'widthFix'" class="w-300px" :src="item.url" />
         </div>
       </div>
-    </wd-card>
+      <div v-else class="flex justify-center">
+        <img v-if="getFileType(item.url) === 'image'" :mode="'widthFix'" class="w-300px" :src="item.url" />
+        <div v-else class="w-300px h-300px bg-[#ddd] flex justify-center items-center">
+          <wd-icon name="play-circle" @click="handleItem(item)" size="140px" color="#fff"></wd-icon>
+        </div>
+      </div>
+
+    </div>
+
     <div v-else class="text-[#bbb] text-20px text-center"><wd-status-tip image="content" tip="暂无内容" /></div>
   </div>
 </template>
@@ -30,19 +41,26 @@ let query;
 let total = 0
 let pageSize = 10
 const bizType = ref('')
+const title = ref('')
 onLoad((opts) => {
   query = opts
   bizType.value = opts.bizType
+  title.value = opts.title
   listRecord()
 })
-
+function handleClickLeft() {
+  uni.navigateBack({})
+}
 function listRecord() {
+  uni.showLoading({mask: true})
   const { bizType, bizId, phonenumber } = query
   if (bizType === 'pointRecord') {
     pointRecord({ userId: bizId, pageSize, pageNum }).then(res => {
       uni.stopPullDownRefresh()
       list.value = [...list.value, ...res.rows]
       total = res.total
+    }).finally(()=>{
+      uni.hideLoading()
     })
     return
   }
@@ -55,6 +73,8 @@ function listRecord() {
     uni.stopPullDownRefresh()
     list.value = [...list.value, ...res.rows]
     total = res.total
+  }).finally(()=>{
+    uni.hideLoading()
   })
 }
 const getFileType = (url) => {
@@ -88,12 +108,16 @@ onReachBottom(() => {
 })
 </script>
 <style>
-.center {
-  top: 50%;
-  left: 50%;
-  transform: translate3d(-50%, -50%, 0);
+page {
+  background-color: #f5f5f5;
 }
+
+.center-left {
+  left: 50%;
+  transform: translate3d(-50%, 0%, 0);
+}
+
 .my-shadow {
-  box-shadow:0px 3px 8px #ddd !important;
+  box-shadow: 0px 3px 8px #ddd !important;
 }
 </style>
