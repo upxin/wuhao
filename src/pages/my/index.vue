@@ -30,7 +30,7 @@
 
 <script lang="ts" setup>
 import { TOKEN } from '@/utils';
-import { onLoad } from '@dcloudio/uni-app';
+import { onLoad, onReady } from '@dcloudio/uni-app';
 import { reactive, ref } from 'vue';
 import { uploadAvatar1, getInfo } from '@/api/index'
 const show = ref(false)
@@ -44,7 +44,9 @@ const model = ref({
 const joy = ref('')
 let token = ''
 let id = ''
-onLoad(() => {
+let phonenumber = ''
+
+onReady(() => {
   uni.getStorage({
     key: 'loginName',
     success(res) {
@@ -57,6 +59,7 @@ onLoad(() => {
       }).then((res) => {
         model.value = res.rows?.[0]
         id = res.rows[0]?.id
+        phonenumber = res.rows[0].phonenumber
       })
     },
   })
@@ -83,27 +86,16 @@ onLoad(() => {
 })
 function logout() {
   uni.removeStorage({
-    key: TOKEN, success() {
+    key: TOKEN,
+    success() {
       uni.redirectTo({ url: '/pages/login/index' })
     }
   })
-}
-function init() {
-  getInfo(token).then((res) => {
-    if (res?.user?.avatar) {
-      uni.hideLoading()
-      uni.showToast({
-        title: '上传成功', icon: 'success'
-      })
-      joy.value = res.user.avatar
-      uni.setStorage({
-        key: 'avatarfile',
-        data: res.user.avatar
-      })
-    }
-
-  }).catch(() => {
-    uni.hideLoading()
+  uni.removeStorage({
+    key: 'loginName',
+  })
+  uni.removeStorage({
+    key: 'avatarfile',
   })
 }
 
@@ -126,7 +118,18 @@ function handleConfirm(event) {
   uni.showLoading({
     title: '正在上传...'
   })
-  uploadAvatar1({ token, id, filePath: tempFilePath }, init)
+  uploadAvatar1({ token, id, filePath: tempFilePath }).then((res) => {
+    joy.value = res.data.url
+    uni.hideLoading()
+    uni.showToast({
+      title: '上传成功',
+      icon: 'success'
+    })
+    uni.setStorage({
+      key: 'avatarfile',
+      data: res.data.url
+    })
+  })
 }
 function handleCancel(event) {
 }
@@ -137,8 +140,9 @@ page {
   height: 100vh;
   background: linear-gradient(135deg, rgba(254, 151, 57, 0.2), rgba(52, 209, 157, 0.1))
 }
+
 .my-shadow {
-  box-shadow: 0 0px 10rpx rgba(0, 0, 0, 0.2) ;
+  box-shadow: 0 0px 10rpx rgba(0, 0, 0, 0.2);
   border-radius: 20rpx;
   overflow: hidden;
 }

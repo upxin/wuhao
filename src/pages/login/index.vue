@@ -3,9 +3,7 @@
     <div class="i-line-md-loading-twotone-loop w-180rpx h-180rpx"></div>
   </div>
 
-  <section v-if="!loading"
-    class="h-screen w-screen flex flex-col justify-center p-30rpx box-border items-center relative bg-cover bg-no-repeat"
-    :style="{ 'background-image': `url(${BG})` }">
+  <section v-if="!loading" class="h-screen w-screen flex flex-col justify-center p-30rpx box-border items-center relative">
     <div class="text-center text3d">大美</div>
     <wd-form ref="form" :model="model">
       <wd-card custom-class="st-sha">
@@ -48,7 +46,6 @@ import { loginApi, getInfo } from '@/api';
 import { TOKEN } from '@/utils/constants'
 import { onLoad } from '@dcloudio/uni-app';
 import { privacy } from './privacy';
-import BG from '@/static/style/bg.png'
 const show = ref(false)
 const agree = ref(false)
 const model = reactive<{
@@ -113,6 +110,11 @@ onLoad(() => {
 })
 </script>
 <style lang="scss">
+page{
+  background: linear-gradient(135deg, rgba(254, 151, 57, 0.3), rgba(52, 209, 157, 0.2));
+  width: 100vw;
+  height: 100vh;
+}
 .login {
   width: 670rpx;
   border-radius: 20rpx;
@@ -130,6 +132,7 @@ onLoad(() => {
 .st-sha {
   box-shadow: 0px 0px 5px #ddd !important;
 }
+
 
 .text3d {
   color: var(--wot-color-theme);

@@ -1,61 +1,62 @@
 <template>
   <wd-navbar :title="''" safeAreaInsetTop custom-style="background-color:#f5f5f5" :bordered="false"></wd-navbar>
 
-  <section class="flex flex-wrap py-32rpx w-full box-border px-12rpx">
-    <div class="p-12rpx w-1_2 box-border">
-      <section class="item">
-        <div class="text-40rpx mb-20rpx">工作任务</div>
-        <div class="i-material-symbols-light-work-history-rounded h-100rpx w-100rpx my-20rpx mx-auto"></div>
-        <div class="flex justify-between">
-          <wd-button custom-style="font-weight:800;padding:16rpx 24rpx;border-radius: 16rpx;min-width: 120rpx"
-            @tap="upload('task')">上传</wd-button>
-          <wd-button custom-style="font-weight:800;padding:16rpx 24rpx;border-radius: 16rpx;min-width: 120rpx"
-            type="success" @tap="view('task', '工作详情')">查看</wd-button>
+  <section class="flex flex-wrap py-32rpx w-full box-border px-24rpx">
+    <div class="p-12rpx w-1_2 box-border item">
+      <section class=" flex flex-col">
+        <div class="text-40rpx">工作任务</div>
+        <div class="i-material-symbols-light-work-history-rounded h-160rpx w-160rpx  mx-auto"></div>
+      </section>
+      <div class="flex flex-col justify-around">
+        <wd-button custom-style="font-weight:800;padding:20rpx 32rpx;border-radius: 16rpx;min-width: 160rpx"
+          @tap="upload('task')">上&nbsp;&nbsp;传</wd-button>
+        <wd-button custom-style="font-weight:800;padding:20rpx 32rpx;border-radius: 16rpx;min-width: 160rpx"
+          type="success" @tap="viewHistory('task', '工作详情')">查&nbsp;&nbsp;看</wd-button>
+      </div>
+    </div>
+
+    <div class="p-12rpx w-1_2  box-border item">
+      <section class="">
+        <p class="text-40rpx">合同签署</p>
+        <div class="h-180rpx w-180rpx  mx-auto flex justify-center items-center">
+          <div class="i-mdi-file-sign h-160rpx w-160rpx"></div>
         </div>
+      </section>
+      <section class="flex flex-col justify-around">
+        <wd-button custom-style="font-weight:800;padding:20rpx 32rpx;border-radius: 16rpx;min-width: 160rpx"
+          @tap="upload('contract')">上&nbsp;&nbsp;传</wd-button>
+        <wd-button custom-style="font-weight:800;padding:20rpx 32rpx;border-radius: 16rpx;min-width: 160rpx"
+          type="success" @tap="viewHistory('contract', '合同详情')">查&nbsp;&nbsp;看</wd-button>
       </section>
     </div>
 
-    <div class="p-12rpx w-1_2  box-border">
-      <section class="item">
-        <p class="text-40rpx mb-20rpx">合同签署</p>
-        <div class="h-100rpx w-100rpx my-20rpx mx-auto flex justify-center items-center">
-          <div class="i-mdi-file-sign h-80rpx w-80rpx"></div>
+    <div class="p-12rpx w-1_2  box-border item">
+      <section class="">
+        <p class="text-40rpx">工资确认</p>
+        <div class="h-180rpx w-180rpx  mx-auto flex justify-center items-center">
+          <div class="i-icon-park-solid-paper-money h-160rpx w-160rpx  mx-auto"></div>
         </div>
-        <section class="flex justify-between">
-          <wd-button custom-style="font-weight:800;padding:16rpx 24rpx;border-radius: 16rpx;min-width: 120rpx"
-            @tap="upload('contract')">上传</wd-button>
-          <wd-button custom-style="font-weight:800;padding:16rpx 24rpx;border-radius: 16rpx;min-width: 120rpx"
-            type="success" @tap="view('contract','合同详情')">查看</wd-button>
-        </section>
       </section>
-    </div>
-    <div class="p-12rpx w-1_2  box-border">
-      <section class="item">
-        <p class="text-40rpx mb-20rpx">工资确认</p>
-        <div class="h-100rpx w-100rpx my-20rpx mx-auto flex justify-center items-center">
-          <div class="i-icon-park-solid-paper-money h-90rpx w-90rpx my-20rpx mx-auto"></div>
-        </div>
-        <section class="flex justify-between">
-          <wd-button custom-style="font-weight:800;padding:16rpx 24rpx;border-radius: 16rpx;min-width: 120rpx"
-            @tap="upload('pay')">上传</wd-button>
-          <wd-button custom-style="font-weight:800;padding:16rpx 24rpx;border-radius: 16rpx;min-width: 120rpx"
-            type="success" @tap="view('pay','工资详情')">查看</wd-button>
-        </section>
+      <section class="flex flex-col justify-around">
+        <wd-button custom-style="font-weight:800;padding:20rpx 32rpx;border-radius: 16rpx;min-width: 160rpx"
+          @tap="upload('pay')">上&nbsp;&nbsp;传</wd-button>
+        <wd-button custom-style="font-weight:800;padding:20rpx 32rpx;border-radius: 16rpx;min-width: 160rpx"
+          type="success" @tap="viewHistory('pay', '工资详情')">查&nbsp;&nbsp;看</wd-button>
       </section>
     </div>
 
-    <div class="p-12rpx w-1_2  box-border">
-      <section class="item">
-        <p class="text-40rpx mb-20rpx">资料审核</p>
-        <div class="h-100rpx w-100rpx my-20rpx mx-auto flex justify-center items-center">
-          <div class="i-material-symbols-library-add-check h-80rpx w-80rpx my-20rpx mx-auto"></div>
+    <div class="p-12rpx w-1_2  box-border item">
+      <section class="">
+        <p class="text-40rpx">资料审核</p>
+        <div class="h-180rpx w-180rpx  mx-auto flex justify-center items-center">
+          <div class="i-material-symbols-library-add-check h-160rpx w-160rpx  mx-auto"></div>
         </div>
-        <section class="flex justify-between">
-          <wd-button custom-style="font-weight:800;padding:16rpx 24rpx;border-radius: 16rpx;min-width: 120rpx"
-            @tap="upload('check')">上传</wd-button>
-          <wd-button custom-style="font-weight:800;padding:16rpx 24rpx;border-radius: 16rpx;min-width: 120rpx"
-            type="success" @tap="view('check', '资料审核')">查看</wd-button>
-        </section>
+      </section>
+      <section class="flex flex-col justify-around">
+        <wd-button custom-style="font-weight:800;padding:20rpx 32rpx;border-radius: 16rpx;min-width: 160rpx"
+          @tap="upload('check')">上&nbsp;&nbsp;传</wd-button>
+        <wd-button custom-style="font-weight:800;padding:20rpx 32rpx;border-radius: 16rpx;min-width: 160rpx"
+          type="success" @tap="viewHistory('check', '资料审核')">查&nbsp;&nbsp;看</wd-button>
       </section>
     </div>
   </section>
@@ -102,16 +103,13 @@ onLoad(() => {
   });
 })
 function upload(type) {
-  uni.showLoading({
-    title: '上传中...', mask: true, icon: 'none'
-  })
   uploadFile({
     bizId: id,
     bizType: type,
   }, token)
 }
 
-function view(type,title) {
+function viewHistory(type, title) {
   uni.navigateTo({
     url: `/pages/history/index?bizId=${id}&bizType=${type}&phonenumber=${phonenumber}&title=${title}`
   })
@@ -124,11 +122,13 @@ page {
 }
 
 .item {
+  display: flex;
   border: 6rpx solid var(--wot-color-theme);
   box-sizing: border-box;
   width: 100%;
   margin-bottom: 28rpx;
   padding: 24rpx;
   border-radius: 26rpx;
+  justify-content: space-around;
 }
 </style>

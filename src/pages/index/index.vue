@@ -2,27 +2,27 @@
   <div v-if="loading" class="w-screen h-screen flex flex-col justify-center items-center fixed z-1000 top-0 left-0">
     <div class="i-line-md-loading-twotone-loop w-180rpx h-180rpx"></div>
   </div>
+  <div v-show="!loading" class="card-swiper flex flex-col h-screen overflow-hidden relative">
+    <!-- <wd-swiper :list="swiperList" :autoplay="true" v-model:current="current" height="240" :imageMode="'widthFix'"
+      :indicator="{ type: 'dots-bar' }"></wd-swiper> -->
 
-  <div v-show="!loading" class="card-swiper flex flex-col h-screen overflow-hidden relative ">
-    <wd-swiper :list="swiperList" :autoplay="true" v-model:current="current" height="240" :imageMode="'widthFix'"
-      :indicator="{ type: 'dots-bar' }"></wd-swiper>
+      <map class="h-full w-screen" :longitude="lon" :latitude="lat" :markers="markers" scale="16" controls>
+        <template slot="callout">
+          <cover-view marker-id="123" class="pop">
+            {{ addrDetail }}
+          </cover-view>
+        </template>
+      </map>
 
-    <map class="flex-1 w-screen" :longitude="lon" :latitude="lat" :markers="markers" scale="16" controls>
-      <template slot="callout">
-        <cover-view marker-id="123" class="pop">
-          {{ addrDetail }}
-        </cover-view>
-      </template>
-    </map>
 
     <div class=" absolute flex justify-around bottom-60rpx w-screen">
-      <wd-button :size="'large'" @click="showCameraFunc" custom-style="font-weight:600">打卡</wd-button>
-      <wd-button :size="'large'" @click="view('pointRecord', '考勤记录')" custom-style="font-weight:600"
-        :type="'success'">查看</wd-button>
+      <wd-button :size="'large'" @click="showCameraFunc" custom-style="font-weight:800;padding:20rpx 112rpx;border-radius: 16rpx;min-width: 160rpx;font-size-40rpx">打&nbsp;&nbsp;卡</wd-button>
+      <wd-button :size="'large'" @click="viewHistory('pointRecord', '考勤记录')" custom-style="font-weight:800;padding:20rpx 112rpx;border-radius: 16rpx;min-width: 160rpx"
+        :type="'success'">查&nbsp;&nbsp;看</wd-button>
     </div>
   </div>
 
-  <div v-show="!loading" class="w-screen h-screen fixed top-0 left-0" v-show="showCamera">
+  <div v-show="showCamera" class="w-screen h-screen fixed top-0 left-0">
     <camera class="w-screen h-screen absolute z-999 left-0 top-0" device-position="front" flash="off"></camera>
     <div class="absolute w-screen bottom-60rpx flex justify-around z-1000">
       <wd-button custom-style="font-weight:600" size="large" custom-class="mr-20rpx" @tap="takePhoto">拍照</wd-button>
@@ -32,8 +32,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
-import { onLoad } from '@dcloudio/uni-app';
+import { computed, ref } from 'vue'
+import { onLoad, onReady } from '@dcloudio/uni-app';
 import { getBanner, uploadFile } from '@/api';
 import { AMapWX } from '../../amap-wx.130'
 import LocationIcon from '@/static/icon/location.png'
@@ -47,9 +47,9 @@ const lat = ref(0)
 const markers = ref([])
 const addrDetail = ref('')
 let myAmapFun
-let id = ''
-let token = ''
-let phonenumber = ''
+let id = ref()
+let token = ref()
+let phonenumber = ref()
 
 const showCamera = ref(false)
 
@@ -72,26 +72,26 @@ function init() {
           pageSize: 1
         }
       }).then((res) => {
-        id = res.rows[0]?.id
-        phonenumber = res.rows[0]?.phonenumber
+        id.value = res.rows[0]?.id
+        phonenumber.value = res.rows[0]?.phonenumber
       })
     }
   })
   uni.getStorage({
     key: 'TOKEN',
     success(res) {
-      token = res.data
+      token.value = res.data
     }
   })
 
-  getBanner({
-    pageSize: 6,
-    pageNum: 1,
-    bizType: 'banner',
-    bizId: 'banner'
-  }).then(res => {
-    swiperList.value = res.data.map(item => item.url)
-  })
+  // getBanner({
+  //   pageSize: 6,
+  //   pageNum: 1,
+  //   bizType: 'banner',
+  //   bizId: 'banner'
+  // }).then(res => {
+  //   swiperList.value = res.data.map(item => item.url)
+  // })
 }
 
 const getAddr = (location) => {
@@ -112,36 +112,26 @@ const getAddr = (location) => {
 async function takePhoto() {
 
   uni.showLoading({
-    title: '打卡中...',
+    title: '正在打卡...',
     mask: true,
     icon: 'none'
   })
   try {
-    const res = await uni.getLocation({
-      type: 'wgs84',
-    })
-    const { latitude, longitude } = res
-
-    const addr = await getAddr(`${longitude},${latitude}`)
+    const addr = await getAddr(`${lon.value},${lat.value}`)
     const pointAddressReal = addr[0].regeocodeData.formatted_address
-
-
     const filePath = await getPhoto()
     const uuid = ('' + Math.random()).split('.')[1] + ('' + Math.random() * 100).split('.')[0]
-    await getPhoto()
     await uploadPhoto(filePath, uuid)
     await point(pointAddressReal, uuid)
     uni.hideLoading()
-
   } catch (error) {
+
     uni.hideLoading()
     uni.showToast({
       title: '打卡异常',
       icon: 'fail'
     })
   }
-
-
 }
 
 function uploadPhoto(filePath, uuid) {
@@ -155,7 +145,7 @@ function uploadPhoto(filePath, uuid) {
         bizType: 'pointRecord'
       },
       header: {
-        'Authorization': token
+        'Authorization': token.value
       },
       success() {
         rv(true)
@@ -198,15 +188,16 @@ function getPhoto() {
   })
 }
 
-function view(type, title) {
+function viewHistory(type, title) {
+  const url = `/pages/history/index?bizId=${id.value}&bizType=${type}&phonenumber=${phonenumber.value}&title=${title}`
   uni.navigateTo({
-    url: `/pages/history/index?bizId=${id}&bizType=${type}&phonenumber=${phonenumber}&title=${title}`
+    url
   })
 }
 
 
 
-onLoad(async () => {
+onReady(async () => {
   init()
   try {
     myAmapFun = new AMapWX({
@@ -250,9 +241,9 @@ onLoad(async () => {
     bottom: -16px;
   }
 
-  :deep(.wd-swiper__track) {
-    border-radius: 0;
-  }
+  // :deep(.wd-swiper__track) {
+  //   border-radius: 0;
+  // }
 
   :deep(.wd-swiper-nav__item--dots-bar.is-active) {
     border-radius: 14rpx;
