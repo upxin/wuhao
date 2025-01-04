@@ -44,7 +44,7 @@
 import { ref, reactive, onBeforeMount } from 'vue';
 import { loginApi, getInfo } from '@/api';
 import { TOKEN } from '@/utils/constants'
-import { onLoad } from '@dcloudio/uni-app';
+import { onLoad, onShareAppMessage, onShareTimeline } from '@dcloudio/uni-app';
 import { privacy } from './privacy';
 const show = ref(false)
 const agree = ref(false)
@@ -57,6 +57,18 @@ const model = reactive<{
   tenantCode: 'enjoy',
   password: '123456'
 })
+onShareAppMessage(() => {
+  return {
+    title: '大美',                //分享的标题
+    path: 'pages/login/index',      //点击分享链接之后进入的页面路径
+  };
+})
+
+onShareTimeline(() => {
+  return {
+    title: '大美',
+  };
+});
 const loading = ref(true)
 const form = ref()
 function handleSubmit() {

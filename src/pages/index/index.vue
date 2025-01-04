@@ -6,26 +6,32 @@
     <!-- <wd-swiper :list="swiperList" :autoplay="true" v-model:current="current" height="240" :imageMode="'widthFix'"
       :indicator="{ type: 'dots-bar' }"></wd-swiper> -->
 
-      <map class="h-full w-screen" :longitude="lon" :latitude="lat" :markers="markers" scale="16" controls>
-        <template slot="callout">
-          <cover-view marker-id="123" class="pop">
-            {{ addrDetail }}
-          </cover-view>
-        </template>
-      </map>
+    <map class="h-full w-screen" :longitude="lon" :latitude="lat" :markers="markers" scale="16" controls>
+      <template slot="callout">
+        <cover-view marker-id="123" class="pop">
+          {{ addrDetail }}
+        </cover-view>
+      </template>
+    </map>
 
 
     <div class=" absolute flex justify-around bottom-60rpx w-screen">
-      <wd-button :size="'large'" @click="showCameraFunc" custom-style="font-weight:800;padding:20rpx 112rpx;border-radius: 16rpx;min-width: 160rpx;font-size-40rpx">打&nbsp;&nbsp;卡</wd-button>
-      <wd-button :size="'large'" @click="viewHistory('pointRecord', '考勤记录')" custom-style="font-weight:800;padding:20rpx 112rpx;border-radius: 16rpx;min-width: 160rpx"
+      <wd-button :size="'large'" @click="showCameraFunc"
+        custom-style="font-weight:800;padding:20rpx 112rpx;border-radius: 16rpx;min-width: 160rpx;font-size-40rpx">打&nbsp;&nbsp;卡</wd-button>
+      <wd-button :size="'large'" @click="viewHistory('pointRecord', '考勤记录')"
+        custom-style="font-weight:800;padding:20rpx 112rpx;border-radius: 16rpx;min-width: 160rpx"
         :type="'success'">查&nbsp;&nbsp;看</wd-button>
     </div>
   </div>
 
-  <div v-show="showCamera" class="w-screen h-screen fixed top-0 left-0">
-    <camera class="w-screen h-screen absolute z-999 left-0 top-0" device-position="front" flash="off"></camera>
-    <div class="absolute w-screen bottom-60rpx flex justify-around z-1000">
-      <wd-button custom-style="font-weight:600" size="large" custom-class="mr-20rpx" @tap="takePhoto">拍照</wd-button>
+  <div v-show="showCamera"
+    class="p-60rpx  bg-[#f5f5f5] w-full h-full fixed top-0 left-0 box-border overflow-hidden flex flex-col justify-center items-center">
+    <wd-navbar :title="''" safeAreaInsetTop custom-style="background-color:#f5f5f5" :bordered="false"></wd-navbar>
+
+    <camera class="flex-1 border-16rpx rounded-md border-fff border-solid box-border w-full overflow-hidden"
+      device-position="front" flash="off"></camera>
+    <div class="py-60rpx flex justify-around z-1000 w-full">
+      <wd-button custom-style="font-weight:600" size="large" @tap="takePhoto">拍照</wd-button>
       <wd-button custom-style="font-weight:600" size="large" type="success" @tap="hideCamera">取消</wd-button>
     </div>
   </div>
@@ -33,7 +39,7 @@
 
 <script setup lang="ts">
 import { computed, ref } from 'vue'
-import { onLoad, onReady } from '@dcloudio/uni-app';
+import { onLoad, onReady, onShareAppMessage, onShareTimeline } from '@dcloudio/uni-app';
 import { getBanner, uploadFile } from '@/api';
 import { AMapWX } from '../../amap-wx.130'
 import LocationIcon from '@/static/icon/location.png'
@@ -60,6 +66,18 @@ const showCameraFunc = () => {
 const hideCamera = () => {
   showCamera.value = false;
 };
+onShareAppMessage(() => {
+  return {
+    title: '大美',                //分享的标题
+    path: 'pages/login/index',      //点击分享链接之后进入的页面路径
+  };
+})
+
+onShareTimeline(() => {
+  return {
+    title: '大美',
+  };
+});
 
 function init() {
   uni.getStorage({

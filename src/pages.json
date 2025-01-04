@@ -10,13 +10,17 @@
 			"path": "pages/login/index",
 			"style": {
 				"navigationStyle": "custom",
+				"enableShareAppMessage": true,
+				"enableShareTimeline": true 
 			}
 		},
 		{
 			"path": "pages/index/index",
 			"style": {
 				"navigationStyle": "custom",
-				"navigationBarTitleText": "首页"
+				"enableShareAppMessage": true,
+				"navigationBarTitleText": "首页",
+				"enableShareTimeline": true 
 			}
 		},
 		{

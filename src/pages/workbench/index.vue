@@ -47,7 +47,7 @@
 
     <div class="p-12rpx w-1_2  box-border item">
       <section class="">
-        <p class="text-40rpx">资料审核</p>
+        <p class="text-40rpx">年审资料</p>
         <div class="h-180rpx w-180rpx  mx-auto flex justify-center items-center">
           <div class="i-material-symbols-library-add-check h-160rpx w-160rpx  mx-auto"></div>
         </div>
