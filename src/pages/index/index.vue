@@ -28,8 +28,10 @@
     class="p-60rpx  bg-[#f5f5f5] w-full h-full fixed top-0 left-0 box-border overflow-hidden flex flex-col justify-center items-center">
     <wd-navbar :title="''" safeAreaInsetTop custom-style="background-color:#f5f5f5" :bordered="false"></wd-navbar>
 
-    <camera class="flex-1 border-16rpx rounded-md border-fff border-solid box-border w-full overflow-hidden"
-      device-position="front" flash="off"></camera>
+    <div class="flex-1 border-16rpx rounded-md border-fff border-solid box-border w-full overflow-hidden">
+      <camera class="h-full" device-position="front" flash="off"></camera>
+    </div>
+
     <div class="py-60rpx flex justify-around z-1000 w-full">
       <wd-button custom-style="font-weight:600" size="large" @tap="takePhoto">拍照</wd-button>
       <wd-button custom-style="font-weight:600" size="large" type="success" @tap="hideCamera">取消</wd-button>
