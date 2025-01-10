@@ -24,19 +24,13 @@
     </div>
   </div>
 
-  <div v-show="showCamera"
-    class="p-60rpx  bg-[#f5f5f5] w-full h-full fixed top-0 left-0 box-border overflow-hidden flex flex-col justify-center items-center">
-    <wd-navbar :title="''" safeAreaInsetTop custom-style="background-color:#f5f5f5" :bordered="false"></wd-navbar>
 
-    <div class="flex-1 border-16rpx rounded-md border-fff border-solid box-border w-full overflow-hidden">
-      <camera class="h-full" device-position="front" flash="off"></camera>
-    </div>
-
-    <div class="py-60rpx flex justify-around z-1000 w-full">
-      <wd-button custom-style="font-weight:600" size="large" @tap="takePhoto">拍照</wd-button>
-      <wd-button custom-style="font-weight:600" size="large" type="success" @tap="hideCamera">取消</wd-button>
-    </div>
-  </div>
+  <camera v-show="showCamera" class="h-screen w-screen fixed top-0 left-0" device-position="front" flash="off">
+    <cover-view  class="flex justify-around z-1000 w-full absolute bottom-60rpx flex justify-around">
+      <cover-view class="w-300rpx py-30rpx bg-primary text-fff rounded-md text-center" @tap="takePhoto">拍照</cover-view>
+      <cover-view class="w-300rpx py-30rpx text-fff bg-[#34D19D] rounded-md text-center" @tap="hideCamera">取消</cover-view>
+    </cover-view>
+  </camera>
 </template>
 
 <script setup lang="ts">
