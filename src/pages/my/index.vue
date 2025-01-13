@@ -41,6 +41,8 @@ const model = ref({
   company: '',
   employmentDate: ''
 })
+const dimission = ref(true)
+
 const joy = ref('')
 let token = ''
 let id = ''
@@ -60,6 +62,7 @@ onReady(() => {
         model.value = res.rows?.[0]
         id = res.rows[0]?.id
         phonenumber = res.rows[0].phonenumber
+        dimission.value = res.rows[0]?.status == '1'
       })
     },
   })
@@ -102,6 +105,13 @@ function logout() {
 const src = ref<string>('')
 
 function upload() {
+
+  if (dimission.value) {
+    return uni.showToast({
+      title: '该职工已离职',
+      icon: 'error'
+    })
+  }
   uni.chooseMedia({
     count: 1, // 默认9
     sizeType: ['compressed'], // 可以指定是原图还是压缩图，默认二者都有

@@ -8,7 +8,8 @@
         <div class="i-material-symbols-light-work-history-rounded h-160rpx w-160rpx  mx-auto"></div>
       </section>
       <div class="flex flex-col justify-around">
-        <wd-button custom-style="font-weight:800;padding:20rpx 32rpx;border-radius: 16rpx;min-width: 160rpx"
+        <wd-button :disabled="dimission"
+          custom-style="font-weight:800;padding:20rpx 32rpx;border-radius: 16rpx;min-width: 160rpx"
           @tap="upload('task')">上&nbsp;&nbsp;传</wd-button>
         <wd-button custom-style="font-weight:800;padding:20rpx 32rpx;border-radius: 16rpx;min-width: 160rpx"
           type="success" @tap="viewHistory('task', '工作详情')">查&nbsp;&nbsp;看</wd-button>
@@ -23,7 +24,8 @@
         </div>
       </section>
       <section class="flex flex-col justify-around">
-        <wd-button custom-style="font-weight:800;padding:20rpx 32rpx;border-radius: 16rpx;min-width: 160rpx"
+        <wd-button :disabled="dimission"
+          custom-style="font-weight:800;padding:20rpx 32rpx;border-radius: 16rpx;min-width: 160rpx"
           @tap="upload('contract')">上&nbsp;&nbsp;传</wd-button>
         <wd-button custom-style="font-weight:800;padding:20rpx 32rpx;border-radius: 16rpx;min-width: 160rpx"
           type="success" @tap="viewHistory('contract', '合同详情')">查&nbsp;&nbsp;看</wd-button>
@@ -38,7 +40,8 @@
         </div>
       </section>
       <section class="flex flex-col justify-around">
-        <wd-button custom-style="font-weight:800;padding:20rpx 32rpx;border-radius: 16rpx;min-width: 160rpx"
+        <wd-button :disabled="dimission"
+          custom-style="font-weight:800;padding:20rpx 32rpx;border-radius: 16rpx;min-width: 160rpx"
           @tap="upload('pay')">上&nbsp;&nbsp;传</wd-button>
         <wd-button custom-style="font-weight:800;padding:20rpx 32rpx;border-radius: 16rpx;min-width: 160rpx"
           type="success" @tap="viewHistory('pay', '工资详情')">查&nbsp;&nbsp;看</wd-button>
@@ -53,7 +56,8 @@
         </div>
       </section>
       <section class="flex flex-col justify-around">
-        <wd-button custom-style="font-weight:800;padding:20rpx 32rpx;border-radius: 16rpx;min-width: 160rpx"
+        <wd-button :disabled="dimission"
+          custom-style="font-weight:800;padding:20rpx 32rpx;border-radius: 16rpx;min-width: 160rpx"
           @tap="upload('check')">上&nbsp;&nbsp;传</wd-button>
         <wd-button custom-style="font-weight:800;padding:20rpx 32rpx;border-radius: 16rpx;min-width: 160rpx"
           type="success" @tap="viewHistory('check', '资料审核')">查&nbsp;&nbsp;看</wd-button>
@@ -68,6 +72,8 @@ import { uploadFile } from '@/api/index'
 import { host, TOKEN } from "@/utils";
 import { onLoad } from '@dcloudio/uni-app'
 import { AMapWX } from '../../amap-wx.130'
+
+const dimission = ref(true)
 
 let id = ''
 let token = ''
@@ -86,6 +92,7 @@ onLoad(() => {
       }).then((res) => {
         id = res.rows[0]?.id
         phonenumber = res.rows[0]?.phonenumber
+        dimission.value = res.rows[0]?.status == '1'
       })
     }
   })
@@ -103,6 +110,12 @@ onLoad(() => {
   });
 })
 function upload(type) {
+  if (dimission.value) {
+    return uni.showToast({
+      title: '该职工已离职',
+      icon: 'error'
+    })
+  }
   uploadFile({
     bizId: id,
     bizType: type,

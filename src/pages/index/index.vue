@@ -16,7 +16,7 @@
 
 
     <div class=" absolute flex justify-around bottom-60rpx w-screen">
-      <wd-button :size="'large'" @click="showCameraFunc"
+      <wd-button :size="'large'" @click="showCameraFunc" :disabled="dimission"
         custom-style="font-weight:800;padding:20rpx 112rpx;border-radius: 16rpx;min-width: 160rpx;font-size-40rpx">打&nbsp;&nbsp;卡</wd-button>
       <wd-button :size="'large'" @click="viewHistory('pointRecord', '考勤记录')"
         custom-style="font-weight:800;padding:20rpx 112rpx;border-radius: 16rpx;min-width: 160rpx"
@@ -26,16 +26,18 @@
 
 
   <camera v-show="showCamera" class="h-screen w-screen fixed top-0 left-0" device-position="front" flash="off">
-    <cover-view  class="flex justify-around z-1000 w-full absolute bottom-60rpx flex justify-around">
-      <cover-view class="w-300rpx py-30rpx bg-primary text-fff rounded-md text-center" @tap="takePhoto">拍照</cover-view>
-      <cover-view class="w-300rpx py-30rpx text-fff bg-[#34D19D] rounded-md text-center" @tap="hideCamera">取消</cover-view>
+    <cover-view class="flex justify-around z-1000 w-full absolute bottom-60rpx flex justify-around">
+      <cover-view class="w-300rpx py-30rpx bg-primary text-fff rounded-md text-center"
+        @tap="takePhoto">拍照</cover-view>
+      <cover-view class="w-300rpx py-30rpx text-fff bg-[#34D19D] rounded-md text-center"
+        @tap="hideCamera">取消</cover-view>
     </cover-view>
   </camera>
 </template>
 
 <script setup lang="ts">
 import { computed, ref } from 'vue'
-import { onLoad, onReady, onShareAppMessage, onShareTimeline } from '@dcloudio/uni-app';
+import { onLoad, onReady, onShareAppMessage, onShareTimeline, onShow } from '@dcloudio/uni-app';
 import { getBanner, uploadFile } from '@/api';
 import { AMapWX } from '../../amap-wx.130'
 import LocationIcon from '@/static/icon/location.png'
@@ -48,6 +50,7 @@ const lon = ref(0)
 const lat = ref(0)
 const markers = ref([])
 const addrDetail = ref('')
+const dimission = ref(true)
 let myAmapFun
 let id = ref()
 let token = ref()
@@ -56,6 +59,13 @@ let phonenumber = ref()
 const showCamera = ref(false)
 
 const showCameraFunc = () => {
+  if (dimission.value) {
+    return uni.showToast({
+      title: '该职工已离职',
+      icon: 'error'
+    })
+  }
+  
   showCamera.value = true;
 };
 
@@ -88,6 +98,7 @@ function init() {
       }).then((res) => {
         id.value = res.rows[0]?.id
         phonenumber.value = res.rows[0]?.phonenumber
+        dimission.value = res.rows[0]?.status == '1'
       })
     }
   })
@@ -124,7 +135,6 @@ const getAddr = (location) => {
 }
 
 async function takePhoto() {
-
   uni.showLoading({
     title: '正在打卡...',
     mask: true,
@@ -186,6 +196,7 @@ function point(pointAddressReal, uuid) {
   })
 
 }
+
 function getPhoto() {
   const ctx = uni.createCameraContext()
   return new Promise((rv, rj) => {
@@ -209,39 +220,102 @@ function viewHistory(type, title) {
   })
 }
 
+function checkAndRequestLocationPermission() {
+  return new Promise((resolve, reject) => {
+    // 检查当前的设置
+    uni.getSetting({
+      success(settingRes) {
+        if (!settingRes.authSetting['scope.userLocation']) {
+          // 如果没有定位权限，请求权限
+          uni.authorize({
+            scope: 'scope.userLocation',
+            success() {
+              // 用户同意授权
+              resolve(true);
+            },
+            fail() {
+              // 用户拒绝授权
+              uni.showModal({
+                title: '需要定位权限',
+                content: '我们需要获取您的位置信息，请前往设置开启权限。',
+                success(modalRes) {
+                  if (modalRes.confirm) {
+                    // 用户同意前往设置
+                    uni.openSetting({
+                      success(openSettingRes) {
+                        if (openSettingRes.authSetting['scope.userLocation']) {
+                          resolve(true);
+                        } else {
+                          reject(new Error('用户未授权定位权限'));
+                        }
+                      },
+                      fail() {
+                        reject(new Error('打开设置失败'));
+                      }
+                    });
+                  } else {
+                    reject(new Error('用户拒绝前往设置'));
+                  }
+                }
+              });
+            }
+          });
+        } else {
+          // 已经有权限
+          resolve(true);
+        }
+      },
+      fail(err) {
+        reject(err);
+      }
+    });
+  });
+}
+
 
 
 onReady(async () => {
   init()
-  try {
-    myAmapFun = new AMapWX({
-      key: '12eb12da01685bd7f18c119afc730035'
-    });
-    const res = await uni.getLocation({
-      type: 'wgs84'
+  // 在小程序启动或页面加载时调用
+  checkAndRequestLocationPermission()
+    .then(async () => {
+      console.log('定位权限已授权');
+      // 可以在这里调用获取位置信息的代码
+
+      try {
+        myAmapFun = new AMapWX({
+          key: '12eb12da01685bd7f18c119afc730035'
+        });
+        const res = await uni.getLocation({
+          type: 'wgs84'
+        })
+        const { latitude, longitude } = res
+        const addrInfo = await getAddr(`${longitude},${latitude}`)
+        addrDetail.value = addrInfo[0].regeocodeData.formatted_address
+        lon.value = longitude
+        lat.value = latitude
+        markers.value = [{
+          id: 123,
+          latitude,
+          longitude,
+          iconPath: LocationIcon,
+          width: 50,
+          height: 50,
+          customCallout: {
+            anchorY: 2,
+            anchorX: 0,
+            display: 'ALWAYS'
+          },
+        }]
+        loading.value = false
+      } catch (error) {
+        loading.value = false
+      }
     })
-    const { latitude, longitude } = res
-    const addrInfo = await getAddr(`${longitude},${latitude}`)
-    addrDetail.value = addrInfo[0].regeocodeData.formatted_address
-    lon.value = longitude
-    lat.value = latitude
-    markers.value = [{
-      id: 123,
-      latitude,
-      longitude,
-      iconPath: LocationIcon,
-      width: 50,
-      height: 50,
-      customCallout: {
-        anchorY: 2,
-        anchorX: 0,
-        display: 'ALWAYS'
-      },
-    }]
-    loading.value = false
-  } catch (error) {
-    loading.value = false
-  }
+    .catch((err) => {
+      console.error('定位权限未授权', err);
+      loading.value = false
+    });
 })
 </script>
 
