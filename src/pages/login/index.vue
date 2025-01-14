@@ -53,7 +53,7 @@ const model = reactive<{
   password: string
   tenantCode: string
 }>({
-  username: '13499998888',
+  username: '',
   tenantCode: 'enjoy',
   password: '123456'
 })
