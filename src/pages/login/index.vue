@@ -47,7 +47,7 @@ import { TOKEN } from '@/utils/constants'
 import { onLoad, onShareAppMessage, onShareTimeline } from '@dcloudio/uni-app';
 import { privacy } from './privacy';
 const show = ref(false)
-const agree = ref(true)
+const agree = ref(false)
 const model = reactive<{
   username: string
   password: string
