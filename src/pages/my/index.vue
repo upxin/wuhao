@@ -7,7 +7,7 @@
     <div class="p-40rpx">
       <div class="flex items-center pb-40rpx">
         <wd-img :width="100" :height="100" :src="joy" :enable-preview="false" round v-if="joy" />
-        <div class="w-100px h-100px rounded-10px bg-[#ddd] text-[#bbb] flex justify-center items-center" @tap="upload"
+        <div class="w-100px h-100px rounded-full bg-[#ddd] text-[#bbb] flex justify-center items-center" @tap="upload"
           v-else>暂无头像</div>
         <div class="ml-40rpx text-40rpx">{{ model.userName }}</div>
         <div class="i-material-symbols-edit-square-outline w-60rpx h-60rpx ml-60rpx bg-[#bbb]" @tap="upload"></div>
@@ -30,7 +30,7 @@
 
 <script lang="ts" setup>
 import { TOKEN } from '@/utils';
-import { onLoad, onReady } from '@dcloudio/uni-app';
+import { onShow, onReady } from '@dcloudio/uni-app';
 import { reactive, ref } from 'vue';
 import { uploadAvatar1, getInfo } from '@/api/index'
 const show = ref(false)
@@ -47,7 +47,24 @@ const joy = ref('')
 let token = ''
 let id = ''
 let phonenumber = ''
-
+onShow(()=>{
+  uni.getStorage({
+    key: 'loginName',
+    success(res) {
+      uni.u.get('/system/disabledUser/selectPage', {
+        data: {
+          phonenumber: res.data,
+          pageNum: 1,
+          pageSize: 1
+        }
+      }).then((res) => {
+        id = res.rows[0]?.id
+        phonenumber = res.rows[0]?.phonenumber
+        dimission.value = res.rows[0]?.status == '1'
+      })
+    }
+  })
+})
 onReady(() => {
   uni.getStorage({
     key: 'loginName',

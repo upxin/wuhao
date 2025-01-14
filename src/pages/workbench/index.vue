@@ -70,8 +70,7 @@
 import { ref, reactive, computed } from 'vue'
 import { uploadFile } from '@/api/index'
 import { host, TOKEN } from "@/utils";
-import { onLoad } from '@dcloudio/uni-app'
-import { AMapWX } from '../../amap-wx.130'
+import { onLoad, onShow } from '@dcloudio/uni-app'
 
 const dimission = ref(true)
 
@@ -103,11 +102,23 @@ onLoad(() => {
     }
   })
 })
-let myAmapFun
-onLoad(() => {
-  myAmapFun = new AMapWX({
-    key: '12eb12da01685bd7f18c119afc730035'
-  });
+onShow(()=>{
+  uni.getStorage({
+    key: 'loginName',
+    success(res) {
+      uni.u.get('/system/disabledUser/selectPage', {
+        data: {
+          phonenumber: res.data,
+          pageNum: 1,
+          pageSize: 1
+        }
+      }).then((res) => {
+        id = res.rows[0]?.id
+        phonenumber = res.rows[0]?.phonenumber
+        dimission.value = res.rows[0]?.status == '1'
+      })
+    }
+  })
 })
 function upload(type) {
   if (dimission.value) {

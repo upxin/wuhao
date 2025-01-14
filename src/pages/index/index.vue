@@ -16,7 +16,7 @@
 
 
     <div class=" absolute flex justify-around bottom-60rpx w-screen">
-      <wd-button :size="'large'" @click="showCameraFunc" :disabled="dimission"
+      <wd-button :size="'large'" @click="showCameraFunc"
         custom-style="font-weight:800;padding:20rpx 112rpx;border-radius: 16rpx;min-width: 160rpx;font-size-40rpx">打&nbsp;&nbsp;卡</wd-button>
       <wd-button :size="'large'" @click="viewHistory('pointRecord', '考勤记录')"
         custom-style="font-weight:800;padding:20rpx 112rpx;border-radius: 16rpx;min-width: 160rpx"
@@ -40,7 +40,7 @@ const lon = ref(0)
 const lat = ref(0)
 const markers = ref([])
 const addrDetail = ref('')
-const dimission = ref(false)
+const dimission = ref(true)
 let myAmapFun
 let id = ref()
 let token = ref()
@@ -112,7 +112,12 @@ onShareTimeline(() => {
     title: '大美',
   };
 });
-
+onLoad(()=>{
+  init()
+})
+onShow(()=>{
+  init()
+})
 function init() {
   uni.getStorage({
     key: 'loginName',
@@ -288,7 +293,6 @@ const showCameraFunc = async () => {
 };
 
 onReady(async () => {
-  init()
   // 在小程序启动或页面加载时调用
   initLoc()
 })
