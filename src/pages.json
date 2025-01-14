@@ -15,6 +15,14 @@
 			}
 		},
 		{
+			"path": "pages/point/index",
+			"style": {
+				"navigationStyle": "custom",
+				"enableShareAppMessage": true,
+				"enableShareTimeline": true 
+			}
+		},
+		{
 			"path": "pages/index/index",
 			"style": {
 				"navigationStyle": "custom",

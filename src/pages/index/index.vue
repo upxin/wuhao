@@ -23,16 +23,6 @@
         :type="'success'">查&nbsp;&nbsp;看</wd-button>
     </div>
   </div>
-
-
-  <camera v-show="showCamera" class="h-screen w-screen fixed top-0 left-0" device-position="front" flash="off">
-    <cover-view class="flex justify-around z-1000 w-full absolute bottom-60rpx flex justify-around">
-      <cover-view class="w-300rpx py-30rpx bg-primary text-fff rounded-md text-center"
-        @tap="takePhoto">拍照</cover-view>
-      <cover-view class="w-300rpx py-30rpx text-fff bg-[#34D19D] rounded-md text-center"
-        @tap="hideCamera">取消</cover-view>
-    </cover-view>
-  </camera>
 </template>
 
 <script setup lang="ts">
@@ -50,28 +40,66 @@ const lon = ref(0)
 const lat = ref(0)
 const markers = ref([])
 const addrDetail = ref('')
-const dimission = ref(true)
+const dimission = ref(false)
 let myAmapFun
 let id = ref()
 let token = ref()
 let phonenumber = ref()
 
-const showCamera = ref(false)
 
-const showCameraFunc = () => {
-  if (dimission.value) {
-    return uni.showToast({
-      title: '该职工已离职',
-      icon: 'error'
-    })
-  }
-  
-  showCamera.value = true;
-};
+function requestCameraPermission() {
+  return new Promise((resolve, reject) => {
+    // 检查当前的权限设置
+    uni.getSetting({
+      success(settingRes) {
+        if (!settingRes.authSetting['scope.camera']) {
+          // 请求相机权限
+          uni.authorize({
+            scope: 'scope.camera',
+            success() {
+              // 用户同意授权
+              resolve();
+            },
+            fail() {
+              // 用户拒绝授权，提示用户前往设置页面
+              uni.showModal({
+                title: '相机权限',
+                content: '请前往设置页面开启相机权限，以便使用相机功能拍照打卡。',
+                success(modalRes) {
+                  if (modalRes.confirm) {
+                    // 用户同意前往设置
+                    uni.openSetting({
+                      success(openSettingRes) {
+                        if (openSettingRes.authSetting['scope.camera']) {
+                          resolve();
+                        } else {
+                          reject(new Error('用户未授权相机权限'));
+                        }
+                      },
+                      fail() {
+                        reject(new Error('打开设置失败'));
+                      }
+                    });
+                  } else {
+                    reject(new Error('用户拒绝前往设置'));
+                  }
+                }
+              });
+            }
+          });
+        } else {
+          // 已经有权限
+          resolve();
+        }
+      },
+      fail(err) {
+        reject(err);
+      }
+    });
+  });
+}
 
-const hideCamera = () => {
-  showCamera.value = false;
-};
+
 onShareAppMessage(() => {
   return {
     title: '大美',                //分享的标题
@@ -119,99 +147,6 @@ function init() {
   // })
 }
 
-const getAddr = (location) => {
-  return new Promise((rv, rj) => {
-    myAmapFun.getRegeo({
-      location, // 经度, 纬度
-      success(data) {
-        rv(data)
-      },
-      fail(err) {
-        uni.hideLoading()
-        console.error('逆地理编码失败:', err);
-      }
-    });
-  })
-}
-
-async function takePhoto() {
-  uni.showLoading({
-    title: '正在打卡...',
-    mask: true,
-    icon: 'none'
-  })
-  try {
-    const addr = await getAddr(`${lon.value},${lat.value}`)
-    const pointAddressReal = addr[0].regeocodeData.formatted_address
-    const filePath = await getPhoto()
-    const uuid = ('' + Math.random()).split('.')[1] + ('' + Math.random() * 100).split('.')[0]
-    await uploadPhoto(filePath, uuid)
-    await point(pointAddressReal, uuid)
-    uni.hideLoading()
-  } catch (error) {
-
-    uni.hideLoading()
-    uni.showToast({
-      title: '打卡异常',
-      icon: 'fail'
-    })
-  }
-}
-
-function uploadPhoto(filePath, uuid) {
-  return new Promise((rv, rj) => {
-    uni.uploadFile({
-      url: host + '/file/file/upload',
-      filePath,
-      name: 'file',
-      formData: {
-        bizId: uuid,
-        bizType: 'pointRecord'
-      },
-      header: {
-        'Authorization': token.value
-      },
-      success() {
-        rv(true)
-      },
-    });
-  })
-}
-
-function point(pointAddressReal, uuid) {
-  return new Promise((rv, rj) => {
-    uni.u.post('/system/pointRecord/disabledUserPoint', { data: { pointAddressReal, id: uuid } }).then(r4 => {
-      if (r4.code == 200) {
-        rv(true)
-        uni.hideLoading()
-        uni.showToast({
-          icon: 'none',
-          title: "打卡成功"
-        })
-        hideCamera()
-      }
-    }).catch((err) => {
-      rj(err)
-    })
-  })
-
-}
-
-function getPhoto() {
-  const ctx = uni.createCameraContext()
-  return new Promise((rv, rj) => {
-    ctx.takePhoto({
-      quality: 'low',
-      success(res) {
-        const filePath = res.tempImagePath
-        rv(filePath)
-      },
-      fail(err) {
-        rj(err)
-      }
-    })
-  })
-}
 
 function viewHistory(type, title) {
   const url = `/pages/history/index?bizId=${id.value}&bizType=${type}&phonenumber=${phonenumber.value}&title=${title}`
@@ -236,8 +171,8 @@ function checkAndRequestLocationPermission() {
             fail() {
               // 用户拒绝授权
               uni.showModal({
-                title: '需要定位权限',
-                content: '我们需要获取您的位置信息，请前往设置开启权限。',
+                title: '定位权限',
+                content: '请前往设置开启定位权限，用于获取位置打卡。',
                 success(modalRes) {
                   if (modalRes.confirm) {
                     // 用户同意前往设置
@@ -271,51 +206,91 @@ function checkAndRequestLocationPermission() {
     });
   });
 }
+const getAddr = (location) => {
+  return new Promise((rv, rj) => {
+    myAmapFun.getRegeo({
+      location, // 经度, 纬度
+      success(data) {
+        rv(data)
+      },
+      fail(err) {
+        console.error('逆地理编码失败:', err);
+      }
+    });
+  })
+}
 
+async function initLoc() {
+  try {
+    myAmapFun = new AMapWX({
+      key: '12eb12da01685bd7f18c119afc730035'
+    });
+    const res = await checkAndRequestLocationPermission();
+    if (!res) return false; // 如果权限请求失败，返回 false
 
+    const loc = await uni.getLocation({
+      type: 'wgs84'
+    });
+
+    const { latitude, longitude } = loc;
+    lon.value = longitude;
+    lat.value = latitude;
+
+    const addrInfo = await getAddr(`${longitude},${latitude}`)
+    addrDetail.value = addrInfo[0].regeocodeData.formatted_address
+
+    markers.value = [{
+      id: 123,
+      latitude,
+      longitude,
+      iconPath: LocationIcon,
+      width: 50,
+      height: 50,
+      customCallout: {
+        anchorY: 2,
+        anchorX: 0,
+        display: 'ALWAYS'
+      },
+    }];
+    loading.value = false;
+    return true; // 初始化成功，返回 true
+  } catch (error) {
+    loading.value = false;
+    return false; // 发生错误，返回 false
+  }
+}
+
+const showCameraFunc = async () => {
+  if (dimission.value) {
+    return uni.showToast({
+      title: '该职工已离职',
+      icon: 'error'
+    });
+  }
+
+  const locInitialized = await initLoc();
+  if (!locInitialized) {
+    console.error('定位初始化失败');
+    return; // 如果定位初始化失败，停止执行后续逻辑
+  }
+
+  requestCameraPermission()
+    .then(() => {
+      console.log('相机权限已授权');
+      // 调用相机功能
+      uni.navigateTo({
+        url: '/pages/point/index'
+      });
+    })
+    .catch((err) => {
+      console.error('相机权限未授权', err);
+    });
+};
 
 onReady(async () => {
   init()
   // 在小程序启动或页面加载时调用
-  checkAndRequestLocationPermission()
-    .then(async () => {
-      console.log('定位权限已授权');
-      // 可以在这里调用获取位置信息的代码
-
-      try {
-        myAmapFun = new AMapWX({
-          key: '12eb12da01685bd7f18c119afc730035'
-        });
-        const res = await uni.getLocation({
-          type: 'wgs84'
-        })
-        const { latitude, longitude } = res
-        const addrInfo = await getAddr(`${longitude},${latitude}`)
-        addrDetail.value = addrInfo[0].regeocodeData.formatted_address
-        lon.value = longitude
-        lat.value = latitude
-        markers.value = [{
-          id: 123,
-          latitude,
-          longitude,
-          iconPath: LocationIcon,
-          width: 50,
-          height: 50,
-          customCallout: {
-            anchorY: 2,
-            anchorX: 0,
-            display: 'ALWAYS'
-          },
-        }]
-        loading.value = false
-      } catch (error) {
-        loading.value = false
-      }
-    })
-    .catch((err) => {
-      console.error('定位权限未授权', err);
-      loading.value = false
-    });
+  initLoc()
 })
 </script>
 
