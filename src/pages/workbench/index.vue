@@ -2,20 +2,6 @@
   <wd-navbar :title="''" safeAreaInsetTop custom-style="background-color:#f5f5f5" :bordered="false"></wd-navbar>
 
   <section class="flex flex-wrap py-32rpx w-full box-border px-24rpx">
-    <div class="p-12rpx w-1_2 box-border item">
-      <section class=" flex flex-col">
-        <div class="text-40rpx">工作任务</div>
-        <div class="i-material-symbols-light-work-history-rounded h-160rpx w-160rpx  mx-auto"></div>
-      </section>
-      <div class="flex flex-col justify-around">
-        <wd-button :disabled="dimission"
-          custom-style="font-weight:800;padding:20rpx 32rpx;border-radius: 16rpx;min-width: 160rpx"
-          @tap="upload('task')">上&nbsp;&nbsp;传</wd-button>
-        <wd-button custom-style="font-weight:800;padding:20rpx 32rpx;border-radius: 16rpx;min-width: 160rpx"
-          type="success" @tap="viewHistory('task', '工作详情')">查&nbsp;&nbsp;看</wd-button>
-      </div>
-    </div>
-
     <div class="p-12rpx w-1_2  box-border item">
       <section class="">
         <p class="text-40rpx">合同签署</p>
@@ -31,6 +17,22 @@
           type="success" @tap="viewHistory('contract', '合同详情')">查&nbsp;&nbsp;看</wd-button>
       </section>
     </div>
+    
+    <div class="p-12rpx w-1_2 box-border item">
+      <section class=" flex flex-col">
+        <div class="text-40rpx">工作任务</div>
+        <div class="i-material-symbols-light-work-history-rounded h-160rpx w-160rpx  mx-auto"></div>
+      </section>
+      <div class="flex flex-col justify-around">
+        <wd-button :disabled="dimission"
+          custom-style="font-weight:800;padding:20rpx 32rpx;border-radius: 16rpx;min-width: 160rpx"
+          @tap="upload('task')">上&nbsp;&nbsp;传</wd-button>
+        <wd-button custom-style="font-weight:800;padding:20rpx 32rpx;border-radius: 16rpx;min-width: 160rpx"
+          type="success" @tap="viewHistory('task', '工作详情')">查&nbsp;&nbsp;看</wd-button>
+      </div>
+    </div>
+
+    
 
     <div class="p-12rpx w-1_2  box-border item">
       <section class="">
