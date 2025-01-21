@@ -4,7 +4,7 @@
   </div>
 
   <section v-if="!loading" class="h-screen w-screen flex flex-col justify-center p-30rpx box-border items-center relative">
-    <div class="text-center text3d">大美</div>
+    <wd-img :src="LOGO" :width="100" :height="100"></wd-img>
     <wd-form ref="form" :model="model">
       <wd-card custom-class="st-sha">
         <wd-cell-group border>
@@ -46,6 +46,8 @@ import { loginApi, getInfo } from '@/api';
 import { TOKEN } from '@/utils/constants'
 import { onLoad, onShareAppMessage, onShareTimeline } from '@dcloudio/uni-app';
 import { privacy } from './privacy';
+import LOGO from './logo.png'
+
 const show = ref(false)
 const agree = ref(false)
 const model = reactive<{
