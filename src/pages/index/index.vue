@@ -16,7 +16,7 @@
 
 
     <div class=" absolute flex justify-around bottom-60rpx w-screen">
-      <wd-button :size="'large'" @click="showCameraFunc"
+      <wd-button :size="'large'" @click="showCameraFunc" :disabled="!isWorkingHours()"
         custom-style="font-weight:800;padding:20rpx 112rpx;border-radius: 16rpx;min-width: 160rpx;font-size-40rpx">打&nbsp;&nbsp;卡</wd-button>
       <wd-button :size="'large'" @click="viewHistory('pointRecord', '考勤记录')"
         custom-style="font-weight:800;padding:20rpx 112rpx;border-radius: 16rpx;min-width: 160rpx"
@@ -46,6 +46,11 @@ let id = ref()
 let token = ref()
 let phonenumber = ref()
 
+function isWorkingHours() {
+    const now = new Date();
+    const hour = now.getHours();
+    return hour >= 9 && hour < 17;
+}
 
 function requestCameraPermission() {
   return new Promise((resolve, reject) => {
