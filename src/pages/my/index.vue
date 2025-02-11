@@ -9,7 +9,14 @@
         <wd-img :width="100" :height="100" :src="joy" :enable-preview="false" round v-if="joy" />
         <div class="w-100px h-100px rounded-full bg-[#ddd] text-[#bbb] flex justify-center items-center" @tap="upload"
           v-else>暂无头像</div>
-        <div class="ml-40rpx text-40rpx">{{ model.userName }}</div>
+        <div class="ml-40rpx text-40rpx flex flex-col items-center">
+          <div class="pb-12rpx"> {{ model.userName }} </div>
+          <div class="text-28rpx text-[#bbb] flex items-center">
+            <span class="leading-none">{{ info.gender }}</span>
+            <span>丨</span>
+            <span class="leading-none">{{ info.age }}</span>
+          </div>
+        </div>
         <div class="i-material-symbols-edit-square-outline w-60rpx h-60rpx ml-60rpx bg-[#bbb]" @tap="upload"></div>
       </div>
       <template v-if="!show">
@@ -31,7 +38,7 @@
 <script lang="ts" setup>
 import { TOKEN } from '@/utils';
 import { onShow, onReady } from '@dcloudio/uni-app';
-import { reactive, ref } from 'vue';
+import { computed, ref } from 'vue';
 import { uploadAvatar1, getInfo } from '@/api/index'
 const show = ref(false)
 const model = ref({
@@ -47,6 +54,7 @@ const joy = ref('')
 let token = ''
 let id = ''
 let phonenumber = ''
+
 onShow(()=>{
   uni.getStorage({
     key: 'loginName',
@@ -60,6 +68,7 @@ onShow(()=>{
       }).then((res) => {
         id = res.rows[0]?.id
         phonenumber = res.rows[0]?.phonenumber
+        model.value = res.rows?.[0]
         dimission.value = res.rows[0]?.status == '1'
       })
     }
@@ -118,6 +127,37 @@ function logout() {
     key: 'avatarfile',
   })
 }
+
+const info = computed(() => {
+      const idCard = model.value.idCard;
+      if (!/^\d{17}(\d|X)$/i.test(idCard)) {
+        return {}; // 或者返回一个默认值
+      }
+
+      // 提取出生日期
+      const birthYear = parseInt(idCard.substr(6, 4), 10);
+      const birthMonth = parseInt(idCard.substr(10, 2), 10);
+      const birthDay = parseInt(idCard.substr(12, 2), 10);
+
+      // 计算周岁
+      const today = new Date();
+      let age = today.getFullYear() - birthYear;
+      if (
+        today.getMonth() + 1 < birthMonth ||
+        (today.getMonth() + 1 === birthMonth && today.getDate() < birthDay)
+      ) {
+        age--;
+      }
+
+      // 提取性别
+      const genderCode = parseInt(idCard.charAt(16), 10);
+      const gender = (genderCode & 1) === 0 ? '女' : '男';
+
+      return {
+        age: age,
+        gender: gender
+      };
+    });
 
 const src = ref<string>('')
 
