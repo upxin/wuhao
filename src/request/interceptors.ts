@@ -5,7 +5,7 @@ import service from "./index";
 import { TOKEN } from '@/utils/constants'
 import { setActivePinia } from "pinia";
 import { pinia } from "@/main"; // ✅ 引入全局 Pinia 实例
-import { useTokenStore } from "@/store/index";
+import { useUserStore } from "@/store/index";
 
 let token: string = "";
 
@@ -21,7 +21,7 @@ function initHttp() {
   service.interceptors.request.use(async (config) => {
 
     setActivePinia(pinia);
-    const authStore = useTokenStore();
+    const authStore = useUserStore();
     console.log('authStore', authStore.token)
     if (config.data.token) {
       token = config.data.token

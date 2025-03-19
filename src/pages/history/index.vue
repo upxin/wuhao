@@ -75,6 +75,7 @@ function listRecord(refresh: boolean) {
 
   fn(params).then(res => {
     uni.stopPullDownRefresh()
+    console.log('9999999999', params,res.rows)
     if (refresh) {
       list.value = res.rows
     } else {

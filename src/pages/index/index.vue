@@ -26,12 +26,14 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, ref, onBeforeMount } from 'vue'
 import { onLoad, onReady, onShareAppMessage, onShareTimeline, onShow } from '@dcloudio/uni-app';
 import { getBanner, uploadFile } from '@/api';
 import { AMapWX } from '../../amap-wx.130'
 import LocationIcon from '@/static/icon/location.png'
 import { host, TOKEN } from "@/utils";
+import { useUserStore } from '@/store/index'
+const userStore = useUserStore()
 
 const loading = ref(true)
 const current = ref<number>(2)
@@ -42,14 +44,13 @@ const markers = ref([])
 const addrDetail = ref('')
 const dimission = ref(false)
 let myAmapFun
-let id = ref()
-let token = ref()
-let phonenumber = ref()
+let id = ''
+let phonenumber = ''
 
 function isWorkingHours() {
-    const now = new Date();
-    const hour = now.getHours();
-    return hour >= 9 && hour < 17;
+  const now = new Date();
+  const hour = now.getHours();
+  return hour >= 9 && hour < 17;
 }
 
 function requestCameraPermission() {
@@ -117,49 +118,34 @@ onShareTimeline(() => {
     title: '大美',
   };
 });
-onLoad(()=>{
+onBeforeMount(() => {
   init()
 })
-onShow(()=>{
+onShow(() => {
   init()
 })
 function init() {
-  uni.getStorage({
-    key: 'loginName',
-    success(res) {
-      uni.u.get('/system/disabledUser/selectPage', {
-        data: {
-          phonenumber: res.data,
-          pageNum: 1,
-          pageSize: 1
-        }
-      }).then((res) => {
-        id.value = res.rows[0]?.id
-        phonenumber.value = res.rows[0]?.phonenumber
-        dimission.value = res.rows[0]?.status == '1'
-      })
+  const phone = uni.getStorageSync('loginName')
+  uni.u.get('/system/disabledUser/selectPage', {
+    data: {
+      phonenumber: userStore.phone || phone,
+      pageNum: 1,
+      pageSize: 1
     }
-  })
-  uni.getStorage({
-    key: 'TOKEN',
-    success(res) {
-      token.value = res.data
-    }
-  })
+  }).then((res) => {
 
-  // getBanner({
-  //   pageSize: 6,
-  //   pageNum: 1,
-  //   bizType: 'banner',
-  //   bizId: 'banner'
-  // }).then(res => {
-  //   swiperList.value = res.data.map(item => item.url)
-  // })
+    console.log('init==============1',userStore.phone,  phone)
+    console.log('init==============2', res.rows[0])
+
+    id = res.rows[0]?.id
+    phonenumber = res.rows[0]?.phonenumber
+    dimission.value = res.rows[0]?.status == '1'
+  })
 }
 
 
 function viewHistory(type, title) {
-  const url = `/pages/history/index?bizId=${id.value}&bizType=${type}&phonenumber=${phonenumber.value}&title=${title}`
+  const url = `/pages/history/index?bizId=${id}&bizType=${type}&phonenumber=${phonenumber}&title=${title}`
   uni.navigateTo({
     url
   })
