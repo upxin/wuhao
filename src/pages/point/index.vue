@@ -89,24 +89,23 @@ async function takePhoto() {
     mask: true,
     icon: 'none'
   })
+
   try {
+
     const addr = await getAddr(`${lon.value},${lat.value}`)
+
     const pointAddressReal = addr[0].regeocodeData.formatted_address
+
     const filePath = await getPhoto()
+
     const uuid = ('' + Math.random()).split('.')[1] + ('' + Math.random() * 100).split('.')[0]
+
     await uploadPhoto(filePath, uuid)
+
     await point(pointAddressReal, uuid)
-    uni.hideLoading()
-    hideCamera()
+
   } catch (error) {
-
-    uni.hideLoading()
-    uni.showToast({
-      title: '打卡异常',
-      icon: 'fail'
-    })
-
-    hideCamera()
+    console.log('error================', error)
   }
 }
 
@@ -133,14 +132,24 @@ function uploadPhoto(filePath, uuid) {
 function point(pointAddressReal, uuid) {
   return new Promise((rv, rj) => {
     uni.u.post('/system/pointRecord/disabledUserPoint', { data: { pointAddressReal, id: uuid } }).then(r4 => {
+      console.log('r4===================', r4)
       if (r4.code == 200) {
         rv(true)
-        uni.hideLoading()
         uni.showToast({
           icon: 'none',
-          title: "打卡成功"
+          title: "打卡成功",
+          complete() {
+            hideCamera()
+          }
         })
-        hideCamera()
+      } else {
+        uni.showToast({
+          icon: 'none',
+          title: r4.data.msg,
+          complete() {
+            hideCamera()
+          }
+        })
       }
     }).catch((err) => {
       rj(err)
