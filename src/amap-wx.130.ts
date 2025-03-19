@@ -35,7 +35,7 @@ AMapWX.prototype.getRegeo = function (a) {
     var e = c.requestConfig; wx.request({
       url: "https://restapi.amap.com/v3/geocode/regeo", data: { key: c.key, location: d, extensions: "all", s: e.s, platform: e.platform, appname: c.key, sdkversion: e.sdkversion, logversion: e.logversion }, method: "GET", header: { "content-type": "application/json" }, success: function (g) {
         if (g.data.status && "1" == g.data.status) {
-          g = g.data.regeocode; var h = g.addressComponent, f = [], k = g.roads[0].name + "\u9644\u8fd1", m = d.split(",")[0], n = d.split(",")[1]; if (g.pois &&
+          g = g.data.regeocode; var h = g.addressComponent, f = [], k = g.roads?.[0]?.name + "\u9644\u8fd1", m = d.split(",")[0], n = d.split(",")[1]; if (g.pois &&
             g.pois[0]) { k = g.pois[0].name + "\u9644\u8fd1"; var l = g.pois[0].location; l && (m = parseFloat(l.split(",")[0]), n = parseFloat(l.split(",")[1])) } h.provice && f.push(h.provice); h.city && f.push(h.city); h.district && f.push(h.district); h.streetNumber && h.streetNumber.street && h.streetNumber.number ? (f.push(h.streetNumber.street), f.push(h.streetNumber.number)) : f.push(g.roads[0].name); f = f.join(""); a.success([{ iconPath: a.iconPath, width: a.iconWidth, height: a.iconHeight, name: f, desc: k, longitude: m, latitude: n, id: 0, regeocodeData: g }])
         } else a.fail({
           errCode: g.data.infocode,

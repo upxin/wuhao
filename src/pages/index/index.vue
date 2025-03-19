@@ -118,12 +118,11 @@ onShareTimeline(() => {
     title: '大美',
   };
 });
-onBeforeMount(() => {
+onReady(() => {
   init()
+  initLoc()
 })
-onShow(() => {
-  init()
-})
+
 function init() {
   const phone = uni.getStorageSync('loginName')
   uni.u.get('/system/disabledUser/selectPage', {
@@ -227,6 +226,7 @@ async function initLoc() {
     const loc = await uni.getLocation({
       type: 'wgs84'
     });
+    loading.value = false;
 
     const { latitude, longitude } = loc;
     lon.value = longitude;
@@ -248,10 +248,8 @@ async function initLoc() {
         display: 'ALWAYS'
       },
     }];
-    loading.value = false;
     return true; // 初始化成功，返回 true
   } catch (error) {
-    loading.value = false;
     return false; // 发生错误，返回 false
   }
 }
@@ -283,10 +281,6 @@ const showCameraFunc = async () => {
     });
 };
 
-onReady(async () => {
-  // 在小程序启动或页面加载时调用
-  initLoc()
-})
 </script>
 
 <style lang="scss">
