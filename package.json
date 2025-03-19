@@ -50,6 +50,7 @@
     "@dcloudio/uni-mp-weixin": "3.0.0-4020920240930001",
     "@dcloudio/uni-mp-xhs": "3.0.0-4020920240930001",
     "@dcloudio/uni-quickapp-webview": "3.0.0-4020920240930001",
+    "pinia": "^3.0.1",
     "sass": "1.32.0",
     "unocss-preset-weapp": "^0.64.1",
     "uuid": "^11.0.3",

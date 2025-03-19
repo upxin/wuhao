@@ -40,7 +40,7 @@ const lon = ref(0)
 const lat = ref(0)
 const markers = ref([])
 const addrDetail = ref('')
-const dimission = ref(true)
+const dimission = ref(false)
 let myAmapFun
 let id = ref()
 let token = ref()

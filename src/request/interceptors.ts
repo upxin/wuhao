@@ -3,6 +3,9 @@
 import { getStorage, host } from "@/utils";
 import service from "./index";
 import { TOKEN } from '@/utils/constants'
+import { setActivePinia } from "pinia";
+import { pinia } from "@/main"; // ✅ 引入全局 Pinia 实例
+import { useTokenStore } from "@/store/index";
 
 let token: string = "";
 
@@ -13,15 +16,17 @@ function initHttp() {
       // "content-type": "application/x-www-form-urlencoded",
     },
   });
-
   //请求拦截
   // @ts-ignore
   service.interceptors.request.use(async (config) => {
-    console.log(config)
-    if(config.data.token) {
+
+    setActivePinia(pinia);
+    const authStore = useTokenStore();
+    console.log('authStore', authStore.token)
+    if (config.data.token) {
       token = config.data.token
-    } else if (!token) {
-      token = uni.getStorageSync(TOKEN)
+    } else {
+      token = authStore.token || uni.getStorageSync(TOKEN);
     }
 
     if (config.header?.isToken === false) return config;
@@ -39,17 +44,17 @@ function initHttp() {
   //响应拦截
   service.interceptors.response.use((response) => {
     //TODO
-    if(response.data?.code === 401) {
+    if (response.data?.code === 401) {
       uni.removeStorageSync(TOKEN)
       uni.redirectTo({
-        url:'/pages/login/index'
+        url: '/pages/login/index'
       })
       return Promise.reject(response);
     }
-    if(response.data?.code === 500) {
+    if (response.data?.code === 500) {
       uni.showToast({
-        title:response.data.msg,
-        icon:'error'
+        title: response.data.msg,
+        icon: 'error'
       })
       return Promise.reject(response);
     }

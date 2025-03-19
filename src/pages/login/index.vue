@@ -46,8 +46,9 @@ import { loginApi, getInfo } from '@/api';
 import { TOKEN } from '@/utils/constants'
 import { onLoad, onShareAppMessage, onShareTimeline } from '@dcloudio/uni-app';
 import { privacy } from './privacy';
+import { useTokenStore } from '@/store/index'
 import LOGO from './logo.png'
-
+const tokenStore = useTokenStore()
 const show = ref(false)
 const agree = ref(false)
 const model = reactive<{
@@ -87,6 +88,7 @@ function handleSubmit() {
     if (valid) {
       loginApi(model).then((res) => {
         if (res.code === 200) {
+          tokenStore.setToken(res.data.access_token)
           uni.setStorage({
             key: TOKEN,
             data: res.data.access_token,
