@@ -8,6 +8,8 @@
     <wd-form ref="form" :model="model">
       <wd-card custom-class="st-sha">
         <wd-cell-group border>
+          <wd-input label="租户名" label-width="120rpx" prop="tenantCode" clearable v-model="model.tenantCode"
+          placeholder="请输入租户名" :rules="[{ required: true, message: '请填租户名' }]" />
           <wd-input label="手机号" label-width="120rpx" prop="username" clearable v-model="model.username"
             placeholder="请输入手机号" :rules="[{ required: true, message: '请填写手机号' }]" />
           <wd-input label="密码" show-password label-width="120rpx" prop="password" v-model="model.password" disabled
